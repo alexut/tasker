@@ -1,0 +1,30 @@
+{
+  "scripts": [
+    "src/server.js",
+    "src/api/routes/todo.routes.js"
+  ],
+  "configFiles": [
+    "src/config/index.js"
+  ],
+  "entities": [
+    "src/domain/entities/Task.js",
+    "src/domain/entities/Project.js"
+  ],
+  "parsers": [
+    "src/infrastructure/parser/TodoFileParser.js"
+  ],
+  "repositories": [
+    "src/infrastructure/persistence/TodoFileRepository.js"
+  ],
+  "services": [
+    "src/services/TodoService.js"
+  ],
+  "tests": [
+    "tests/infrastructure/parser/TodoFileParser.test.js",
+   
+    "tests/services/TodoService.test.js",
+    "tests/integration/todo.test.js"
+
+
+  ]
+}
