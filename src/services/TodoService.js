@@ -69,6 +69,35 @@ class TodoService {
             if (updates.note !== undefined) {
                 task.note = updates.note;
             }
+
+            // Handle adding tags
+            if (updates.addTag) {
+                const { name, value } = updates.addTag;
+                // Add tag to tags array if it doesn't exist
+                if (!task.tags) {
+                    task.tags = [];
+                }
+                task.tags.push({ name, value });
+                
+                // Add tag to text
+                const tagText = `@${name}(${value})`;
+                if (!task.text.includes(tagText)) {
+                    task.text = task.text.trim() + ' ' + tagText;
+                }
+            }
+
+            // Handle removing tags
+            if (updates.removeTag) {
+                const tagName = updates.removeTag;
+                // Remove tag from tags array
+                if (task.tags) {
+                    task.tags = task.tags.filter(tag => tag.name !== tagName);
+                }
+                
+                // Remove tag from text
+                const tagRegex = new RegExp(`\\s*@${tagName}\\([^)]+\\)`, 'g');
+                task.text = task.text.replace(tagRegex, '');
+            }
     
             // Log after update
             console.log('Task after update:', {
