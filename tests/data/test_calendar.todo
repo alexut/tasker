@@ -1,0 +1,10 @@
+Work:
+    [ ] Daily Standup @repeats(daily) @time(10:00-10:30) @type(meeting) @log(13)
+        [ ] Task A
+        [ ] Task B
+        Notes for Task B
+    [ ] Sprint Planning @date(2024.01.15:14-00) @type(meeting)
+    [ ] Code Review @date(2024.01.16:15-00) @type(development)
+Personal:
+    [ ] Gym @repeats(every 2 days) @time(18:00-19:00) @type(health)
+    [ ] Dentist @date(2024.02.01:09-30) @type(appointment)

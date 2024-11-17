@@ -1,3 +1,5 @@
+const path = require('path');
+
 const defaultConfig = {
     symbols: {
         completed: "[x]",
@@ -9,10 +11,10 @@ const defaultConfig = {
         oracles: "#"
     },
     settings: {
-        format: "YYYY-MM-DD HH:mm",
-        timezone: "Europe/Bucharest",
-        locale: "ro",
-        basePath: process.env.TODO_BASE_PATH || "c:/hub" // Add this line
+        format: 'YYYY-MM-DD',
+        timezone: 'UTC',
+        locale: 'en-US',
+        basePath: process.env.TODO_BASE_PATH || "c:/hub"  // Use environment variable or default to c:/hub
     },
     debug: true
 };

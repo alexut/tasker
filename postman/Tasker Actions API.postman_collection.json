@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "your-postman-id",
+		"name": "Tasker Actions API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Photoshop Actions",
+			"item": [
+				{
+					"name": "1. Create Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"width\\\": 800, \\\"height\\\": 600, \\\"name\\\": \\\"test\\\"}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/actions/execute",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["api", "actions", "execute"]
+						},
+						"description": "Creates a new 800x600 document"
+					}
+				},
+				{
+					"name": "2. Add Text",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"addText\\\", \\\"text\\\": \\\"Hello World\\\", \\\"x\\\": 400, \\\"y\\\": 300, \\\"size\\\": 48, \\\"color\\\": [0,0,0]}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/actions/execute",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["api", "actions", "execute"]
+						},
+						"description": "Adds text to the active document"
+					}
+				},
+				{
+					"name": "3. Add Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"addImage\\\", \\\"imagePath\\\": \\\"c:/temp/image.png\\\", \\\"x\\\": 100, \\\"y\\\": 100, \\\"width\\\": 200, \\\"height\\\": 200}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/actions/execute",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["api", "actions", "execute"]
+						},
+						"description": "Adds an image to the active document"
+					}
+				},
+				{
+					"name": "4. Save Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"save\\\", \\\"path\\\": \\\"c:/hub/core/tasker/output/test.psd\\\", \\\"format\\\": \\\"psd\\\"}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/actions/execute",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["api", "actions", "execute"]
+						},
+						"description": "Saves the document to specified path (defaults to PSD format)"
+					}
+				}
+			],
+			"description": "Core Photoshop commands for document manipulation"
+		}
+	]
+}

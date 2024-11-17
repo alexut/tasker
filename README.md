@@ -1,199 +1,559 @@
-# Todo Application Documentation
+# Tasker: Advanced Todo Management System
 
-This documentation provides an overview of the Todo application, including its features, installation instructions, usage guidelines, API endpoints, and testing procedures.
+A powerful Node.js-based task management system that combines traditional todo functionality with email integration, command execution, and intelligent data querying.
 
 ## Table of Contents
 - [Introduction](#introduction)
+- [Core Features](#core-features)
 - [Features](#features)
+- [File Structure and Syntax](#file-structure-and-syntax)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Data Format](#data-format)
+- [Usage Examples](#usage-examples)
+- [API Reference](#api-reference)
+
 ## Introduction
-The Todo application is a Node.js-based task management system that allows users to create, update, and manage tasks organized into projects. It supports advanced features such as tags, actions, oracles, and notes associated with tasks. The application provides a RESTful API for interacting with todo files and tasks.
+
+Tasker is a sophisticated todo management system that enhances traditional task tracking with:
+- Hierarchical projects and tasks
+- Smart data querying through oracles
+- Automated actions for task completion
+- Email integration and management
+- Command execution capabilities
+
+## Core Features
+
+### Todo System
+
+1. **Projects and Tasks**
+   ```plaintext
+   Project X:
+       [ ] Task 1 @due(2024-01-01) @assign(John) >cmd("echo 'Starting...'") #invoices(column("amount").row(1))
+           [ ] Subtask 1.1 >cmd("echo 'Subtask 1.1'")
+           [ ] Subtask 1.2 #invoices(column("amount").row(1))
+   ```
+
+2. **Task Properties**
+   - Status: `[ ]`, `[x]`, `[~]`, etc.
+   - Tags: `@due()`, `@assign()`, etc.
+   - Actions: `>cmd()`, `>send_email()`, etc.
+   - Oracles: `#invoices()`, `#projects()`, etc.
+   - Notes and attachments
+
+### Action System
+
+Actions are automated tasks that execute when a todo is completed:
+
+1. **Command Execution** (`cmd`)
+   ```plaintext
+   [ ] Deploy website >cmd("npm run deploy")
+   ```
+
+2. **Email Management**
+   ```plaintext
+   [ ] Send invoice >send_email("billing@company.com", "Invoice Ready", "Please find attached...")
+   [ ] Archive old emails >trash_email("user@company.com", "123")
+   ```
+
+### Oracle System
+
+Oracles provide dynamic data validation and lookup:
+
+1. **JSON Oracles**
+   ```plaintext
+   [ ] Review project status #projects(active).count
+   [ ] Check budget #projects(web-app).budget
+   ```
+
+2. **CSV Oracles**
+   ```plaintext
+   [ ] Process invoice #invoices(column("status").row(1))
+   [ ] Update client info #clients(column("name").row(last))
+   ```
+
+3. **Script Oracles**
+   ```plaintext
+   [ ] Convert budget #curs(convert(1000, "EUR", "RON"))
+   ```
 
 ## Features
-- **Projects and Tasks**: Organize tasks into projects with hierarchical subtasks.
-- **Tags**: Use tags to add metadata to tasks (e.g., due dates, assignments).
-- **Actions**: Define actions to be executed when tasks are completed.
-- **Oracles**: Associate oracles for validation or checking conditions.
-- **Notes**: Add detailed notes to tasks for additional context.
-- **RESTful API**: Interact with the application using HTTP requests.
-## Installation
-### Prerequisites
-- **Node.js**: Version 12 or higher.
-- **npm**: Node.js package manager.
 
-### Steps
-#### Clone the Repository
-```bash
-# Clone repository
- git clone https://github.com/yourusername/todo-app.git
- cd todo-app
-```
+### Core Functionality
+- **Projects and Tasks**: Organize tasks into projects with hierarchical subtasks, allowing complex task breakdowns
+- **Tags**: Use tags to add metadata to tasks (e.g., `@due(2024-01-01)`, `@assign(John)`, `@priority(high)`)
+- **Actions**: Define actions to be executed when tasks are completed (e.g., `>cmd(deploy)`, `>send_email(...)`)
+- **Oracles**: Associate oracles for validation or checking conditions (e.g., `#invoices(status)`, `#projects(budget)`)
+- **Notes**: Add detailed notes to tasks for additional context, supporting multi-line text
+- **RESTful API**: Interact with the application using HTTP requests for automation and integration
 
-#### Install Dependencies
-## Configuration
-The application can be configured via the `src/config/index.js` file. Key configuration options include:
+### File Structure and Syntax
 
-- **Symbols**: Define symbols used for task statuses, tags, actions, and oracles.
-- **Settings**:
-    - `format`: Date-time format.
-    - `timezone`: Application timezone.
-    - `locale`: Localization settings.
-## Usage
-### Starting the Server
-To start the server, run:
-```bash
-npm start
-```
-The server will listen on `http://localhost:3000` by default.
-
-### Environment Variables
-## API Endpoints
-### Base URL
-```
-http://localhost:3000/api/todos
-```
-
-### Endpoints
-1. **Get Todos**
-   - **URL**: `/api/todos/{filePath}`
-   #### Example Request:
-   ```http
-   GET /api/todos/project1.todo HTTP/1.1
-   Host: localhost:3000
-   ```
-
-2. **Update a Task**
-   - **URL**: `/api/todos/{filePath}/tasks/{taskId}`
-   - **Method**: `PATCH`
-   - **Description**: Updates a task's properties.
-   - **Parameters**:
-     - `filePath`: Path to the todo file.
-     - `taskId`: Identifier of the task (e.g., 1.1 for the first task of the first project).
-   - **Request Body**: JSON object with any of the following fields:
-     - `text` (string): New text for the task.
-     - `status` (string): New status ('completed', 'uncompleted', etc.).
-     - `note` (string): New note content.
-     - `addTag` (object): `{ "name": "tagName", "value": "tagValue" }` to add a tag.
-     - `removeTag` (string): Name of the tag to remove.
-   #### Example Request:
-   ```http
-   PATCH /api/todos/project1.todo/tasks/1.1 HTTP/1.1
-   Host: localhost:3000
-   Content-Type: application/json
-
-   {
-     "text": "Updated Task Text",
-     "addTag": {
-       "name": "priority",
-       "value": "high"
-     }
-   }
-   ```
-   #### Example Request:
-   ```http
-   POST /api/todos/project1.todo/tasks/1.2/execute HTTP/1.1
-## Data Format
-### Todo File Structure
-- **Projects**: Defined by a line ending with a colon `:`.
-- **Tasks**: Lines starting with a status symbol (e.g., `[ ]`).
-- **Subtasks**: Indented tasks under a parent task.
-- **Tags**: Included in the task text using the symbol `@` (e.g., `@due(2024-01-01)`).
-- **Actions**: Included using the symbol `>` (e.g., `>notify(email)`).
-- **Oracles**: Included using the symbol `#` (e.g., `#health(check)`).
-- **Notes**: Lines immediately following a task at the same indentation level.
-
-#### Example:
+#### Basic Structure
 ```plaintext
-Project1:
-    [ ] Task1 @due(2024-01-01) @assign(John)
-### Task Identifiers
-Tasks are identified using a dot notation based on their position.
-- **Format**: `{projectIndex}.{taskIndex}.{subtaskIndex}...`
-- **Example**: `1.2` refers to the second task in the first project.
+Project Name:
+    [ ] Task 1 @tag1(value) @tag2(value) >cmd("npm test") #oracle(check-status)
+        Notes for Task 1 (indented at same level)
+        More notes...
+        [ ] Subtask 1.1 @due(2024-01-01) >cmd("npm test")
+        [ ] Subtask 1.2 @assign(John) >cmd("npm test") #oracle(check-status)
+    
+    [x] Task 2 @due(2024-01-01) @assign(John) >cmd("npm test") #oracle(check-status)
+```
+
+#### Components
+1. **Projects**
+   - Defined by a line ending with a colon `:`
+   - Can contain multiple tasks and subprojects
+   - Example:
+     ```plaintext
+     Backend:
+         API Development:
+             [ ] Implement endpoints @type(feature) >cmd("npm run build")
+     ```
+
+2. **Tasks**
+   - Start with a status symbol: `[ ]`, `[x]`, `[~]`, etc.
+   - Can have subtasks (indented)
+   - Tags, actions, and oracles must be on the same line as the task
+   - Example:
+     ```plaintext
+     [ ] Review pull request @assign(Sarah) @due(today) #projects(status)
+         [x] Check code style @type(review)
+         [ ] Run tests @coverage(80) >cmd("npm test") #tests(coverage)
+     ```
+
+3. **Tags**
+   - Must be on the same line as the task
+   - Start with `@` symbol
+   - Format: `@name(value)`
+   - Common tags:
+     ```plaintext
+     [ ] Task with tags @due(2024-01-01) @assign(John) @priority(high) @status(blocked) @repeat(daily)
+     ```
+
+4. **Actions**
+   - Start with `>` symbol
+   - Execute when task is completed
+   - Format: `>action("param1", "param2", ...)`
+   - Parameters must be quoted
+   - Examples:
+     ```plaintext
+     >cmd("npm run deploy")                                # Run command
+     >send_email("team@company.com", "Update", "Hello")    # Send email with subject and body
+     >trash_email("support@company.com", "123")            # Archive email with UID
+     ```
+
+5. **Oracles**
+   - Start with `#` symbol
+   - Query external data sources
+   - Format: `#oracle(query-path)`
+   - Examples:
+     ```plaintext
+     #invoices(status)                   # Check invoice status
+     #projects(web-app).budget           # Get project budget
+     #curs(convert(1000, "EUR", "RON"))   # Currency conversion
+     ```
+
+6. **Notes**
+   - Lines following a task at the same indentation
+   - Support multiple lines
+   - Can contain any text content
+   - Example:
+     ```plaintext
+     [ ] Implement login
+         Technical notes:
+         - Use JWT for authentication
+         - Add rate limiting
+         - Implement OAuth providers
+     ```
+
+### Task States
+- `[ ]` - Pending/Todo
+- `[x]` - Completed
+- `[~]` - In Progress
+- `[-]` - Cancelled
+- `[?]` - Needs Review
+- `[!]` - Urgent/Important
+
+### Indentation Rules
+- Each level uses 4 spaces
+- Subtasks are indented under parent tasks
+- Notes are indented at same level as their task
+- Actions/oracles can be on same line or indented
+
+### Example with All Features
+```plaintext
+Development Tasks:
+    [ ] API Implementation @due(2024-02-01) @assign(John) >cmd("npm run build")
+        Notes:
+        - Use REST architecture
+        - Follow OpenAPI spec
+        
+        [ ] Setup project >cmd("npm init")
+            #projects(template).copy
+        
+        [ ] Implement endpoints @priority(high) >cmd("npm run build")
+            [ ] Authentication
+                #security(oauth-config)
+                >cmd("npm install passport")
+            
+            [ ] User management
+                Notes:
+                - Include GDPR compliance
+                - Add audit logging
+                #users(schema).validate
+        
+        [ ] Write tests @coverage(80) >cmd("npm test")
+            #tests(coverage).check
+
+    [x] Database Setup @completed(2024-01-15)
+        Used PostgreSQL version 14
+        >cmd("docker-compose up db")
+        #db(status).verify
+```
+
+## Usage Examples
+
+### 1. Project Management
+```plaintext
+Website Redesign:
+    [ ] Gather requirements @due(2024-02-01) >cmd("npm run build")
+        [ ] Client meeting #calendar(next-meeting)
+        [ ] Document specs >cmd("code specs.md")
+    
+    [ ] Design phase @assign(Sarah) >cmd("npm run build")
+        [ ] Create mockups
+        [ ] Get approval >send_email("client@example.com", "Design Review")
+    
+    [ ] Development @budget(5000) >cmd("npm run build")
+        [ ] Setup environment >cmd("npm install")
+        [ ] Implement design #projects(web-app).status
+```
+
+### 2. Invoice Processing
+```plaintext
+Finance:
+    [ ] Process new invoices >cmd("npm run build")
+        [ ] Check amount #invoices(latest).amount
+        [ ] Send to client >send_email("client@example.com", "Invoice")
+        [ ] Record payment >cmd("node record-payment.js")
+```
+
+### 3. Email Management
+```plaintext
+Communications:
+    [ ] Handle support emails >cmd("npm run build")
+        [ ] Check inbox #get_email("support@company.com")
+        [ ] Archive old tickets >trash_email("support@company.com", "old")
+        [ ] Send updates >send_email("team@company.com", "Support Update")
+```
+
+### Real-World Example: Email Template System
+
+```plaintext
+Email Templates:
+    [ ] Update invoice template >cmd("npm run build")
+        Notes:
+        - Use company branding
+        - Include payment instructions
+        - Add dynamic fields
+        
+        [ ] Check current template >cmd("code templates/invoice.html")
+            #templates(emails.type("invoice")).content
+            >cmd("code templates/invoice.html")
+        
+        [ ] Update variables >cmd("npm run build")
+            #templates(emails.type("invoice")).fields
+            [ ] Add amount field @required
+            [ ] Add due date @format(YYYY-MM-DD)
+        
+        [ ] Test template @assign(Sarah) >cmd("npm run build")
+            [ ] Get test invoice data
+                #invoices(latest).data
+            [ ] Send test email
+                >send_email("test@company.com", "Invoice Test")
+            [ ] Verify formatting
+                #templates(validate).check
+        
+        [ ] Deploy template @requires(approval) >cmd("npm run build")
+            [ ] Get approval
+                >send_email("manager@company.com", "Template Review")
+                #get_email("manager@company.com").response
+            [ ] Update production
+                >cmd("npm run deploy:templates")
+                #templates(status).verify
+
+    [ ] Clean old templates @auto-archive >cmd("npm run build")
+        [ ] Find unused templates
+            #templates(unused).list
+        [ ] Archive emails
+            >trash_email("templates@company.com", "old")
+        [ ] Update registry
+            #templates(registry).clean
+```
+
+This example shows:
+
+1. **Task Organization**
+   - Hierarchical structure with projects and subtasks
+   - Notes for additional context
+   - Dependencies between tasks (`@requires`)
+
+2. **Data Integration**
+   - Template content querying: `#templates(emails.type("invoice")).content`
+   - Invoice data lookup: `#invoices(latest).data`
+   - Template validation: `#templates(validate).check`
+
+3. **Email Workflow**
+   - Send review request: `>send_email("manager@company.com", "Template Review")`
+   - Check response: `#get_email("manager@company.com").response`
+   - Archive old emails: `>trash_email("templates@company.com", "old")`
+
+4. **Command Execution**
+   - Edit template: `>cmd("code templates/invoice.html")`
+   - Deploy changes: `>cmd("npm run deploy:templates")`
+
+5. **Task Metadata**
+   - Assignments: `@assign(Sarah)`
+   - Requirements: `@required`, `@requires(approval)`
+   - Formatting rules: `@format(YYYY-MM-DD)`
+   - Automation flags: `@auto-archive`
+
+6. **Validation Flow**
+   1. Check current template
+   2. Update and validate fields
+   3. Test with real data
+   4. Get approval
+   5. Deploy to production
+   6. Clean up old templates
+
+This example demonstrates how tasks, actions, and oracles work together in a real business process, combining:
+- Email template management
+- Approval workflows
+- Data validation
+- Deployment automation
+- Cleanup procedures
+
+## Future Enhancements
+
+1. **Oracle-Action Integration**
+   ```plaintext
+   Planned Features:
+   [ ] Enable oracle results in action parameters
+       Examples:
+       >send_email("client@company.com", #templates(invoice).subject, #templates(invoice).body)
+       >cmd(#projects(current).deploy_command)
+       Notes:
+       - Parse oracle results before action execution
+       - Support multiple oracles per action
+       - Handle oracle errors gracefully
+   
+   [ ] Add action parameter validation
+       [ ] Type checking
+       [ ] Required vs optional parameters
+       [ ] Default values
+   
+   [ ] Improve error handling
+       [ ] Better error messages
+       [ ] Fallback options
+       [ ] Retry mechanisms
+   ```
+
+## API Reference
+
+### Todo API
+
+#### Get Todo List
+```http
+GET /api/todos/{filePath}
+
+Response:
+{
+    "projects": [
+        {
+            "name": "Website Redesign",
+            "tasks": [
+                {
+                    "id": "1.1",
+                    "text": "Gather requirements",
+                    "status": "pending",
+                    "tags": [
+                        { "name": "due", "value": "2024-02-01" }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
+
+#### Update Task
+```http
+PATCH /api/todos/{filePath}/tasks/{taskId}
+{
+    "status": "completed",
+    "addTag": {
+        "name": "completed",
+        "value": "2024-01-20"
+    }
+}
+```
+
+### Actions API
+
+#### List Actions
+```http
+GET /api/actions
+
+Response:
+{
+    "actions": [
+        {
+            "name": "cmd",
+            "description": "Execute a command in the console"
+        },
+        {
+            "name": "send_email",
+            "description": "Send an email from a specified account"
+        },
+        {
+            "name": "get_email",
+            "description": "Get emails from accounts"
+        },
+        {
+            "name": "trash_email",
+            "description": "Move emails to trash"
+        }
+    ]
+}
+```
+
+#### Execute Action
+```http
+POST /api/actions/execute
+Content-Type: application/json
+
+{
+    "action": "cmd",
+    "parameters": "echo \"test\""
+}
+
+Response:
+{
+    "type": "cmd",
+    "success": true,
+    "result": {
+        "stdout": "test",
+        "stderr": ""
+    }
+}
+```
+
+### Oracles API
+
+#### List Oracles
+```http
+GET /api/oracles
+
+Response:
+{
+    "oracles": [
+        {
+            "name": "invoices",
+            "type": "csv",
+            "parameters": "client (string), status (string), date (date)",
+            "returns": "List of invoices"
+        },
+        {
+            "name": "projects",
+            "type": "json"
+        }
+    ]
+}
+```
+
+#### Query Oracle
+```http
+POST /api/oracles/query
+Content-Type: application/json
+
+{
+    "name": "invoices",
+    "path": "column(\"amount\").row(1)",
+    "parameters": {
+        "client": "ACME Corp"
+    }
+}
+
+Response:
+{
+    "result": "1000.00"
+}
+```
+
+## Configuration
+
+### Todo Settings
+```javascript
+module.exports = {
+    symbols: {
+        pending: '[ ]',
+        completed: '[x]',
+        actions: '>',
+        oracles: '#',
+        tags: '@'
+    }
+}
+```
+
+### Email Accounts
+```json
+{
+  "accounts": [
+    {
+      "account_name": "user@example.com",
+      "password": "app-specific-password",
+      "server": "imap.gmail.com",
+      "port": 993,
+      "security": "SSL/TLS"
+    }
+  ]
+}
+```
+
+### Oracles
+```javascript
+module.exports = {
+    oracles: {
+        'invoices': 'finances/invoices.csv',
+        'projects': 'core/projects.json',
+        'templates': 'templates/templates.json',
+        'curs': 'core/scripts/cursvalutar.oracle'
+    }
+};
+```
+
+## Error Handling
+
+Actions and oracles provide detailed error messages:
+
+```json
+{
+    "type": "cmd",
+    "success": false,
+    "error": "Command execution failed: Command not found"
+}
+```
 
 ## Testing
-### Running Tests
-The application includes comprehensive tests using Jest. To run the tests:
+
+Run the test suite:
 ```bash
 npm test
 ```
 
-### Test Structure
-- **Unit Tests**: Located in `tests/infrastructure` and `tests/services`.
-  - Test parsing, serialization, and service methods.
-- **Integration Tests**: Located in `tests/integration`.
-  - Test API endpoints and overall application behavior.
-
-### Coverage
-Ensure all tests pass and cover key functionalities. Use coverage tools to assess test completeness.
-
-## Contributing
-Contributions are welcome! To contribute:
-1. Fork the Repository
-2. Create a Feature Branch
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-## License
-This project is licensed under the MIT License.
-
-## Contact
-For questions or support, please open an issue on the project's GitHub repository or contact the maintainer at youremail@example.com.
-
-## Additional Notes
-- **Logging**: The application uses debug logging. You can enable it by setting `debug: true` in the configuration or by using environment variables.
-- **Error Handling**: The API returns meaningful error messages and HTTP status codes to help diagnose issues.
-
-   ```bash
-   git commit -m "Add your message"
-   ```
-4. Push to Your Fork
-   ```bash
-   git push origin feature/your-feature
-   ```
-5. Open a Pull Request
-
-Please ensure that new code includes appropriate tests and follows the project's coding standards.
-    [ ] Task2 >cmd(echo "Hello World")
-```
-   ```
-3. **Execute Task Actions**
-   - **URL**: `/api/todos/{filePath}/tasks/{taskId}/execute`
-   - **Method**: `POST`
-   - **Description**: Executes actions associated with a task and marks it as completed.
-   - **Parameters**:
-     - `filePath`: Path to the todo file.
-     - `taskId`: Identifier of the task.
-   - **Response**:
-     - **Status**: 200 OK
-     - **Body**: JSON object of the updated task.
-     - **Status**: 200 OK
-     - **Body**: JSON object of the updated task.
-   - **Description**: Retrieves the list of projects and tasks from the specified todo file.
-   - **Parameters**:
-     - `filePath`: Path to the todo file (URL-encoded if necessary).
-   - **Response**:
-     - **Status**: 200 OK
-     - **Body**: JSON array of projects with tasks.
-- `PORT`: Specify the port the server should listen on.
-- `TODO_BASE_PATH`: Specify the base path for todo files.
-- **Debug**: Enable or disable debug mode.
-npm install
-```
-
-#### Set Up the Configuration
-- Copy the example configuration if necessary.
-- Adjust settings in `src/config/index.js` as needed.
-
-#### Start the Application
-```bash
-npm start
-```
-The server will start on the default port 3000 unless specified otherwise.
-- **Testing**: Comprehensive unit and integration tests ensure reliability.
-- [Contributing](#contributing)
-- [License](#license)
+Integration tests cover:
+- Action execution
+- Oracle querying
+- Email operations
+- Command execution

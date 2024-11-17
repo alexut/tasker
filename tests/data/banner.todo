@@ -1,0 +1,17 @@
+Banner Creation:
+    [ ] Create new banner file >photoshop({"command": "create", "width": 1920, "height": 1080, "name": "welcome_banner"})
+    [ ] Add welcome text >photoshop({"command": "addText", "text": "Welcome to Mediabit", "x": 100, "y": 100, "size": 72, "color": [41, 128, 185], "file": "welcome_banner"})
+    [ ] Save final banner >photoshop({"command": "save", "outputPath": "welcome_banner_final.psd", "file": "welcome_banner"})
+
+Logo Design:
+    [ ] Create logo canvas >photoshop({"command": "create", "width": 512, "height": 512, "name": "mb_logo"})
+    [ ] Add company name >photoshop({"command": "addText", "text": "MB", "x": 200, "y": 200, "size": 120, "color": [52, 152, 219], "file": "mb_logo"})
+    [ ] Add tagline >photoshop({"command": "addText", "text": "Digital Solutions", "x": 150, "y": 350, "size": 36, "color": [41, 128, 185], "file": "mb_logo"})
+    [ ] Save logo >photoshop({"command": "save", "outputPath": "mb_logo_final.psd", "file": "mb_logo"})
+
+Notes:
+- Each command after "create" needs to specify which file to work on using the "file" parameter
+- Color codes are RGB values
+- Position (x,y) is measured in pixels from top-left
+- Text size is in points
+- The action keeps track of the last used file, but it's better to be explicit

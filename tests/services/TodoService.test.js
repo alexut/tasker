@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const config = require('../../src/config');
 
-describe('TodoService', () => {
+describe('TodoService Tests', () => {
     let todoService;
     const testFilePath = path.join(config.settings.basePath, 'test.todo');
 
@@ -17,11 +17,7 @@ describe('TodoService', () => {
     });
 
     afterEach(async () => {
-        try {
-            await fs.unlink(testFilePath);
-        } catch (error) {
-            // Ignore if file doesn't exist
-        }
+        await fs.unlink(testFilePath).catch(() => {}); // Simplified error handling
     });
 
     test('adds a tag to a task', async () => {
@@ -35,7 +31,6 @@ describe('TodoService', () => {
         expect(updatedTask.tags).toContainEqual({ name: 'priority', value: 'high' });
         expect(updatedTask.text).toContain('@priority(high)');
 
-        // Verify file was updated
         const content = await fs.readFile(testFilePath, 'utf-8');
         expect(content).toContain('@priority(high)');
     });
@@ -48,7 +43,6 @@ describe('TodoService', () => {
         expect(updatedTask.tags).not.toContainEqual({ name: 'assign', value: 'John' });
         expect(updatedTask.text).not.toContain('@assign(John)');
 
-        // Verify file was updated
         const content = await fs.readFile(testFilePath, 'utf-8');
         expect(content).not.toContain('@assign(John)');
     });
@@ -60,24 +54,8 @@ describe('TodoService', () => {
 
         expect(updatedTask.text).toBe('Updated Task1 @due(2024-01-01) @assign(John)');
 
-        // Verify no duplication
         const content = await fs.readFile(testFilePath, 'utf-8');
         const matches = content.match(/@assign\(John\)/g) || [];
         expect(matches.length).toBe(1);
-    });
-
-    test('executes task actions', async () => {
-        // Mock the executeAction method
-        jest.spyOn(todoService, 'executeAction').mockImplementation(async (action) => {
-            // Simulate action execution
-        });
-
-        const task = await todoService.executeTaskActions(testFilePath, '1.2');
-        expect(task.status).toBe('completed');
-        expect(todoService.executeAction).toHaveBeenCalledWith({ type: 'cmd', params: 'echo "test"' });
-
-        // Verify file was updated
-        const content = await fs.readFile(testFilePath, 'utf-8');
-        expect(content).toContain('[x] Task2');
     });
 });

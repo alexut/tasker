@@ -1,0 +1,57 @@
+{
+    "accounts": [
+        {
+            "account_name": "alex@mediabit.ro",
+            "server": "mail.mediabit.ro",
+            "type": "IMAP",
+            "port": 993,
+            "security": "SSL/TLS",
+            "smtp_server": "mail.mediabit.ro",
+            "smtp_port": 465,
+            "smtp_security": "SSL/TLS",
+            "password": "1unu2doi!!",
+            "tlsOptions": {
+                "rejectUnauthorized": false
+            }
+        },
+        {
+            "account_name": "hello@mediabit.ro",
+            "server": "mail.mediabit.ro",
+            "type": "IMAP",
+            "port": 993,
+            "security": "SSL/TLS",
+            "smtp_server": "mail.mediabit.ro",
+            "smtp_port": 465,
+            "smtp_security": "SSL/TLS",
+            "password": "1unu2doi!!",
+            "tlsOptions": {
+                "rejectUnauthorized": false
+            }
+        },
+        {
+            "account_name": "alexandruiga@gmail.com",
+            "server": "imap.gmail.com",
+            "type": "IMAP",
+            "port": 993,
+            "security": "SSL/TLS",
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 465,
+            "smtp_security": "SSL/TLS",
+            "appPassword": "njrf pdke baaw etje"
+        },
+        {
+            "account_name": "alex@mediabit.work",
+            "server": "mail.mediabit.work",
+            "type": "IMAP",
+            "port": 993,
+            "security": "SSL/TLS",
+            "smtp_server": "mail.mediabit.work",
+            "smtp_port": 465,
+            "smtp_security": "SSL/TLS",
+            "password": "1unu2doi!!",
+            "tlsOptions": {
+                "rejectUnauthorized": false
+            }
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+# TestScript
+# Parameters: message - Message to echo
+# Returns: The message echoed back
+
+const message = process.argv[2] || 'Hello World';
+console.log(message);

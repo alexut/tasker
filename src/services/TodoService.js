@@ -1,10 +1,12 @@
 // src/services/TodoService.js
 const TodoFileRepository = require('../infrastructure/persistence/TodoFileRepository');
 const config = require('../config'); // Adjust the path as needed
+const ActionRegistry = require('../domain/actions/ActionRegistry');
 
 class TodoService {
     constructor() {
         this.repository = new TodoFileRepository();
+        this.actionRegistry = new ActionRegistry();
     }
 
     async loadFile(filePath) {
@@ -113,7 +115,10 @@ class TodoService {
             return task;
         } catch (error) {
             console.error('Error in updateTask:', error);
-            throw error;
+            throw {
+                message: `Error updating task: ${error.message}`,
+                code: error.code || 1
+            };
         }
     }
 
@@ -125,18 +130,45 @@ class TodoService {
             throw new Error(`Task not found: ${taskId}`);
         }
 
+        const results = [];
         for (const action of task.actions) {
-            await this.executeAction(action);
+            try {
+                console.log(`[TodoService] Executing action: ${action.type}`);
+                const result = await this.actionRegistry.executeAction(action.type, task, action.params);
+                results.push({
+                    type: action.type,
+                    success: true,
+                    result
+                });
+            } catch (error) {
+                console.error(`[TodoService] Action ${action.type} failed:`, error);
+                results.push({
+                    type: action.type,
+                    success: false,
+                    error: {
+                        message: `Action execution failed: ${error.message}`,
+                        code: error.code || 1
+                    }
+                });
+            }
         }
 
-        task.status = 'completed';
-        await this.saveFile(filePath, projects);
+        // Only mark as completed if all actions succeeded
+        const allSucceeded = results.every(r => r.success);
+        if (allSucceeded) {
+            task.status = 'completed';
+            await this.saveFile(filePath, projects);
+        }
         
-        return task;
+        return {
+            task,
+            actionResults: results,
+            allActionsSucceeded: allSucceeded
+        };
     }
 
-    async executeAction(action) {
-        console.log(`Executing action: ${action.type} with params: ${action.params}`);
+    async listAvailableActions() {
+        return this.actionRegistry.listActions();
     }
 }
 

@@ -4,7 +4,6 @@ const TodoService = require('../../services/TodoService');
 const router = express.Router();
 const todoService = new TodoService();
 
-// Add this new route at the beginning of the file
 router.get('/', async (req, res) => {
     try {
         const files = await todoService.listFiles();
@@ -17,6 +16,15 @@ router.get('/', async (req, res) => {
 router.get('/health', (req, res) => {
     console.log('Health check requested on API server');
     res.json({ status: 'ok', server: 'api' });
+});
+
+router.get('/actions', async (req, res) => {
+    try {
+        const actions = await todoService.listAvailableActions();
+        res.json({ actions });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 router.get('/:filePath', async (req, res) => {
@@ -69,7 +77,5 @@ router.post('/:filePath/tasks/:taskId/execute', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-
 
 module.exports = router;
