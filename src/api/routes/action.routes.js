@@ -31,6 +31,10 @@ router.get('/', (req, res) => {
 // Execute an action
 router.post('/execute', async (req, res) => {
     const { action: actionType, parameters } = req.body;
+    console.log('Action request received:', {
+        actionType,
+        parameters: JSON.stringify(parameters)
+    });
 
     if (!actionType || !actions[actionType]) {
         return res.status(400).json({ error: `Unknown action type: ${actionType}` });
@@ -38,6 +42,8 @@ router.post('/execute', async (req, res) => {
 
     try {
         if (actionType === 'photoshop') {
+            const params = JSON.parse(parameters);
+            console.log('Parsed photoshop parameters:', params);
             const result = await photoshopAction.execute(null, parameters);
             res.json({
                 type: actionType,

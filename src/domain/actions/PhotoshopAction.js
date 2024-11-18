@@ -60,15 +60,19 @@ class PhotoshopAction extends Action {
 
     async execute(task, parameters) {
         try {
+            console.log('PhotoshopAction execute called with:', {
+                task,
+                parameters
+            });
             // Parse parameters
             const params = JSON.parse(parameters);
-            const { command, ...commandParams } = params;
+            console.log('Parsed parameters:', params);
 
-            const script = this.generatePhotopeaScript(command, commandParams);
+            const script = this.generatePhotopeaScript(params.command, params);
             console.log('Generated script:', script);
 
             // If this is a create command or no active connection, start new browser
-            if (command === 'create' || !this.activeConnection) {
+            if (params.command === 'create' || !this.activeConnection) {
                 const htmlPath = 'http://localhost:3000/photopea.html';
                 await this.browserAction.execute(task, `"${htmlPath}", 1920, 1080, 0, 0`);
                 
@@ -87,7 +91,12 @@ class PhotoshopAction extends Action {
             // Send script via WebSocket
             if (this.activeConnection) {
                 const { sendToPhotopea } = require('../../server');
-                const sent = sendToPhotopea(this.activeConnection, script);
+                console.log('Sending to Photopea:', {
+                    connectionId: this.activeConnection,
+                    script,
+                    params
+                });
+                const sent = sendToPhotopea(this.activeConnection, script, params);
                 if (!sent) {
                     throw new Error('Failed to send command to Photopea');
                 }

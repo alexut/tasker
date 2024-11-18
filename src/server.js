@@ -78,17 +78,41 @@ wss.on('connection', (ws) => {
 });
 
 // Function to send command to specific Photopea instance
-function sendToPhotopea(connectionId, script) {
+function sendToPhotopea(connectionId, script, params) {
+    console.log('Sending to Photopea:', {
+        connectionId,
+        script,
+        command: params.command,
+        path: params.path
+    });
+
     const ws = connections.get(connectionId);
+    console.log('Found WebSocket:', !!ws);
+    console.log('WebSocket state:', ws ? ws.readyState : 'not found');
+
     if (ws && ws.readyState === WebSocket.OPEN) {
         try {
-            ws.send(script);
+            if (params && params.command === 'save') {
+                console.log('Preparing save command message');
+                const message = JSON.stringify({
+                    type: 'save_command',
+                    path: params.path,
+                    script: script
+                });
+                console.log('Save command message:', message);
+                ws.send(message);
+                console.log('Save command sent');
+            } else {
+                console.log('Sending regular script:', script);
+                ws.send(script);
+            }
             return true;
         } catch (error) {
             console.error('Error sending to Photopea:', error);
             return false;
         }
     }
+    console.log('WebSocket not available');
     return false;
 }
 
@@ -101,20 +125,29 @@ app.use('/api/todos', todoRoutes);
 app.use('/api/actions', actionRoutes);
 
 // Handle API requests
-app.post('/api/action/:action', (req, res) => {
-    const { action } = req.params;
-    const { connectionId, parameters } = req.body;
-
+app.post('/api/action/:action', async (req, res) => {
     try {
-        if (!connectionId) {
-            throw new Error('Connection ID is required');
-        }
+        const { action } = req.params;
+        const { connectionId, parameters } = req.body;
+        console.log('Received action request:', {
+            action,
+            connectionId,
+            parameters
+        });
 
         if (action === 'photoshop') {
             const params = JSON.parse(parameters);
+            console.log('Parsed parameters:', params);
+            console.log('Is save command?', params.command === 'save');
+            console.log('Command type:', params.command);
+            console.log('Has path?', 'path' in params);
+            
             const script = PhotoshopAction.generatePhotopeaScript(params.command, params);
-            sendToPhotopea(connectionId, script);
-            res.json({ success: true });
+            console.log('Generated script:', script);
+            
+            const result = sendToPhotopea(connectionId, script, params);
+            console.log('Send result:', result);
+            res.json({ success: result });
         } else {
             throw new Error(`Unknown action: ${action}`);
         }

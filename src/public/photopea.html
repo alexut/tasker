@@ -32,6 +32,7 @@
         let ws = null;
         let reconnectAttempts = 0;
         const maxReconnectAttempts = 5;
+        let currentSavePath = null;
 
         function updateStatus(message, isError = false) {
             status.textContent = message;
@@ -69,28 +70,41 @@
 
             ws.onmessage = (event) => {
                 try {
+                    console.log('Raw WebSocket message:', event.data);
                     const data = JSON.parse(event.data);
-                    console.log('WebSocket message received:', data);
+                    console.log('Parsed WebSocket message:', data);
 
                     if (data.type === 'connection') {
                         console.log('Connected with ID:', data.id);
                         return;
                     }
 
+                    if (data.type === 'save_command') {
+                        console.log('Got save command:', {
+                            path: data.path,
+                            script: data.script
+                        });
+                        currentSavePath = data.path;
+                        console.log('Stored path:', currentSavePath);
+                        console.log('Sending script to Photopea:', data.script);
+                        frame.contentWindow.postMessage(data.script, '*');
+                        return;
+                    }
+
                     // Execute script
-                    console.log('Executing script:', event.data);
+                    console.log('Executing regular script:', event.data);
                     lastCommand.textContent = event.data;
                     updateStatus('Executing command...');
                     frame.contentWindow.postMessage(event.data, '*');
                 } catch (error) {
                     // If not JSON, execute as raw script
-                    console.log('Executing raw script:', event.data);
+                    console.log('Not JSON, executing as raw script:', event.data);
                     lastCommand.textContent = event.data;
                     updateStatus('Executing command...');
                     frame.contentWindow.postMessage(event.data, '*');
                 }
             };
-        }
+        };
 
         // Listen for messages from Photopea
         window.addEventListener('message', function(event) {
@@ -99,20 +113,38 @@
                 
                 if (event.data instanceof ArrayBuffer) {
                     console.log('Received ArrayBuffer from saveToOE');
+                    console.log('Current save path:', currentSavePath);
                     updateStatus('Saving file...');
                     
                     // Get format from last command
                     const lastScript = lastCommand.textContent;
+                    console.log('Last script:', lastScript);
                     const formatMatch = lastScript.match(/saveToOE\("([^"]+)"\)/);
                     const format = formatMatch ? formatMatch[1] : 'psd';
+                    console.log('Using format:', format);
+                    
+                    if (!currentSavePath) {
+                        console.error('No save path set');
+                        updateStatus('Error: No save path set', true);
+                        return;
+                    }
                     
                     // Send save data to server
-                    ws.send(JSON.stringify({
+                    const saveMessage = {
                         type: 'save',
                         format: format,
-                        path: 'c:/hub/core/tasker/output/test.psd',
+                        path: currentSavePath,
                         data: Array.from(new Uint8Array(event.data))
-                    }));
+                    };
+                    console.log('Sending save message:', {
+                        ...saveMessage,
+                        data: `[${saveMessage.data.length} bytes]`
+                    });
+                    ws.send(JSON.stringify(saveMessage));
+
+                    // Clear path after use
+                    currentSavePath = null;
+                    console.log('Cleared save path');
                     return;
                 }
                 

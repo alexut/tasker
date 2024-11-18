@@ -1,8 +1,8 @@
-# Todo API Documentation
+# Tasker API Documentation
 
-## Base URL: `/api/todos`
+## Todo API
 
-### 1. List Todo Files
+### List Todo Files
 Lists all `.todo` files in the configured base directory and its subdirectories.
 
 **Endpoint**: `GET /api/todos`
@@ -18,150 +18,295 @@ Lists all `.todo` files in the configured base directory and its subdirectories.
 }
 ```
 
----
-
-### 2. Load Todo File
+### Load Todo File
 Loads and parses a specific todo file.
 
-**Endpoint**: `GET /api/todos/:filePath`
+**Endpoint**: `GET /api/todos/:filename`
 
 **Parameters**:
-- `filePath`: Relative or absolute path to the todo file (URL encoded)
+- `filename`: Relative or absolute path to the todo file (URL encoded)
 
 **Response**:
 ```json
-[
-    {
-        "name": "Project1",
-        "tasks": [
+{
+    "filename": "string",
+    "content": {
+        "projects": [
             {
-                "text": "Task1 @due(2024-01-01) @assign(John)",
-                "status": "uncompleted",
-                "tasks": [],
-                "note": "",
-                "tags": [
+                "id": "string",
+                "name": "string",
+                "tasks": [
                     {
-                        "name": "due",
-                        "value": "2024-01-01"
-                    },
-                    {
-                        "name": "assign",
-                        "value": "John"
+                        "id": "string",
+                        "text": "string",
+                        "done": "boolean",
+                        "tags": [
+                            {
+                                "name": "string",
+                                "value": "string"
+                            }
+                        ]
                     }
-                ],
-                "actions": [],
-                "oracles": []
+                ]
             }
         ]
     }
-]
+}
 ```
 
----
-
-### 3. Update Task
+### Update Task
 Updates a specific task in a todo file.
 
-**Endpoint**: `PATCH /api/todos/:filePath/tasks/:taskId`
+**Endpoint**: `PATCH /api/todos/:filename/tasks/:taskId`
 
 **Parameters**:
-- `filePath`: Relative or absolute path to the todo file (URL encoded)
+- `filename`: Relative or absolute path to the todo file (URL encoded)
 - `taskId`: Task identifier (e.g., "1.1" for the first project's first task)
 
 **Request Body Options**:
 ```json
 {
-    "text": "Updated task text",
-    "status": "completed",
-    "note": "New note text",
+    "text": "string",
+    "done": "boolean",
     "addTag": {
-        "name": "priority",
-        "value": "high"
+        "name": "string",
+        "value": "string"
     },
-    "removeTag": "assign"
+    "removeTag": "string"
 }
 ```
 
 **Response**:
 ```json
 {
-    "text": "Updated task text @priority(high)",
-    "status": "completed",
-    "note": "New note text",
-    "tasks": [],
-    "tags": [
-        {
-            "name": "priority",
-            "value": "high"
-        }
-    ],
-    "actions": [],
-    "oracles": []
-}
-```
-
----
-
-### 4. Execute Task Actions
-Executes all actions associated with a task and marks it as completed.
-
-**Endpoint**: `POST /api/todos/:filePath/tasks/:taskId/execute`
-
-**Parameters**:
-- `filePath`: Relative or absolute path to the todo file (URL encoded)
-- `taskId`: Task identifier (e.g., "1.1" for the first project's first task)
-
-**Response**:
-```json
-{
-    "text": "Task with actions >cmd(echo 'test')",
-    "status": "completed",
-    "tasks": [],
-    "note": "",
-    "tags": [],
-    "actions": [
-        {
-            "type": "cmd",
-            "params": "echo 'test'"
-        }
-    ],
-    "oracles": []
-}
-```
-
----
-
-## Usage Examples
-
-### List all todo files:
-```bash
-curl http://localhost:3000/api/todos
-```
-
-### Load a specific todo file:
-```bash
-curl http://localhost:3000/api/todos/work.todo
-```
-
-### Update a task:
-```bash
-curl -X PATCH http://localhost:3000/api/todos/work.todo/tasks/1.1 \
--H "Content-Type: application/json" \
--d '{
-    "text": "Updated task",
-    "addTag": {
-        "name": "priority",
-        "value": "high"
+    "success": "boolean",
+    "task": {
+        "id": "string",
+        "text": "string",
+        "done": "boolean",
+        "tags": [
+            {
+                "name": "string",
+                "value": "string"
+            }
+        ]
     }
-}'
+}
 ```
 
-### Execute task actions:
-```bash
-curl -X POST http://localhost:3000/api/todos/work.todo/tasks/1.1/execute
+---
+
+## Oracle API
+
+### List Oracles
+**URL**: `/api/oracle`
+**Method**: `GET`
+
+#### Response
+```json
+{
+    "oracles": [
+        {
+            "name": "string",
+            "description": "string"
+        }
+    ]
+}
 ```
 
-## Task ID Format
-Task IDs use a dot-notation format to identify tasks, such as `1.1` for the first project’s first task.
+### Query Oracle
+**URL**: `/api/oracle/query`
+**Method**: `POST`
+
+#### Request Body
+```json
+{
+    "name": "string",     // Oracle name (required)
+    "path": "string",     // Optional path
+    "parameters": {       // Optional parameters
+        "key": "value"
+    }
+}
+```
+
+#### Response
+```json
+{
+    "result": {
+        // Oracle-specific result object
+    }
+}
+```
+
+### Execute Oracle Script
+**URL**: `/api/oracle/execute`
+**Method**: `POST`
+
+#### Request Body
+```json
+{
+    "script": "string",    // Oracle script content
+    "parameters": {        // Optional parameters
+        "key": "value"
+    }
+}
+```
+
+#### Response
+```json
+{
+    "success": boolean,
+    "result": object,
+    "error": "string"
+}
+```
+
+---
+
+## Action API
+
+### Execute Action
+**URL**: `/api/action/execute`
+**Method**: `POST`
+
+#### Request Body
+```json
+{
+    "action": "string",
+    "parameters": "string"  // JSON string of parameters
+}
+```
+
+### Available Actions
+
+#### Browser Action
+Control browser windows
+```json
+{
+    "action": "browser",
+    "parameters": "{
+        \"url\": \"https://example.com\",
+        \"width\": 1920,
+        \"height\": 1080,
+        \"x\": 0,
+        \"y\": 0
+    }"
+}
+```
+
+#### Command Action
+Execute system commands
+```json
+{
+    "action": "cmd",
+    "parameters": "{
+        \"command\": \"echo\",
+        \"args\": [\"Hello World\"]
+    }"
+}
+```
+
+#### Email Actions
+
+##### Send Email
+```json
+{
+    "action": "send_email",
+    "parameters": "{
+        \"to\": \"recipient@example.com\",
+        \"subject\": \"Test Email\",
+        \"body\": \"Hello World\",
+        \"attachments\": [\"path/to/file.txt\"]
+    }"
+}
+```
+
+##### Get Email
+```json
+{
+    "action": "get_email",
+    "parameters": "{
+        \"account\": \"myaccount\",
+        \"folder\": \"INBOX\",
+        \"limit\": 10
+    }"
+}
+```
+
+##### Trash Email
+```json
+{
+    "action": "trash_email",
+    "parameters": "{
+        \"account\": \"myaccount\",
+        \"messageId\": \"12345\"
+    }"
+}
+```
+
+#### Photoshop Actions
+
+##### Create Document
+```json
+{
+    "action": "photoshop",
+    "parameters": "{
+        \"command\": \"create\",
+        \"width\": 800,
+        \"height\": 600,
+        \"name\": \"test\"
+    }"
+}
+```
+
+##### Add Text
+```json
+{
+    "action": "photoshop",
+    "parameters": "{
+        \"command\": \"addText\",
+        \"text\": \"Hello World\",
+        \"x\": 400,
+        \"y\": 300,
+        \"size\": 48,
+        \"color\": [0, 0, 0]
+    }"
+}
+```
+
+##### Add Image
+```json
+{
+    "action": "photoshop",
+    "parameters": "{
+        \"command\": \"addImage\",
+        \"path\": \"path/to/image.jpg\",
+        \"width\": 500,
+        \"height\": 300
+    }"
+}
+```
+
+##### Save Document
+```json
+{
+    "action": "photoshop",
+    "parameters": "{
+        \"command\": \"save\",
+        \"format\": \"psd\",
+        \"path\": \"path/to/save.psd\"
+    }"
+}
+```
+
+### Response Format
+```json
+{
+    "type": "string",     // Action type
+    "success": boolean,   // Success status
+    "result": object,     // Action result (if successful)
+    "error": "string"     // Error message (if failed)
+}
+```
 
 ---
