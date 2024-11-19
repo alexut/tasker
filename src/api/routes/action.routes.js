@@ -6,6 +6,11 @@ const SendEmailAction = require('../../domain/actions/SendEmailAction');
 const TrashEmailAction = require('../../domain/actions/TrashEmailAction');
 const BrowserAction = require('../../domain/actions/BrowserAction');
 const PhotoshopAction = require('../../domain/actions/PhotoshopAction');
+const FileSystemAction = require('../../domain/actions/FileSystemAction');
+
+// Create single instance of PhotoshopAction
+const photoshopAction = new PhotoshopAction();
+const fileSystemAction = new FileSystemAction();
 
 const actions = {
     'cmd': new CmdAction(),
@@ -13,11 +18,9 @@ const actions = {
     'send_email': new SendEmailAction(),
     'trash_email': new TrashEmailAction(),
     'browser': new BrowserAction(),
-    'photoshop': new PhotoshopAction()
+    'photoshop': photoshopAction,
+    'filesystem': fileSystemAction
 };
-
-// Create single instance of PhotoshopAction
-const photoshopAction = new PhotoshopAction();
 
 // Get list of available actions
 router.get('/', (req, res) => {

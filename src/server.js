@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const todoRoutes = require('./api/routes/todo.routes');
 const actionRoutes = require('./api/routes/action.routes');
+const oracleRoutes = require('./api/routes/oracle.routes');
 
 const app = express();
 const server = http.createServer(app);
@@ -123,39 +124,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use('/api/todos', todoRoutes);
 app.use('/api/actions', actionRoutes);
-
-// Handle API requests
-app.post('/api/action/:action', async (req, res) => {
-    try {
-        const { action } = req.params;
-        const { connectionId, parameters } = req.body;
-        console.log('Received action request:', {
-            action,
-            connectionId,
-            parameters
-        });
-
-        if (action === 'photoshop') {
-            const params = JSON.parse(parameters);
-            console.log('Parsed parameters:', params);
-            console.log('Is save command?', params.command === 'save');
-            console.log('Command type:', params.command);
-            console.log('Has path?', 'path' in params);
-            
-            const script = PhotoshopAction.generatePhotopeaScript(params.command, params);
-            console.log('Generated script:', script);
-            
-            const result = sendToPhotopea(connectionId, script, params);
-            console.log('Send result:', result);
-            res.json({ success: result });
-        } else {
-            throw new Error(`Unknown action: ${action}`);
-        }
-    } catch (error) {
-        console.error('API error:', error);
-        res.status(400).json({ error: error.message });
-    }
-});
+app.use('/api/oracles', oracleRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {

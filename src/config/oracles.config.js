@@ -5,14 +5,42 @@ const config = require('./index');
 module.exports = {
     oracles: {
         // Data oracles
-        'invoices': 'finances/invoices.csv',
-        'projects': 'core/projects.json',
-        'leads': 'clients/leads.csv',
-        'offers': 'clients/offers.json',
-        'clients': 'clients/clients.csv',
-        'templates': 'templates/templates.json',
-        'objectives': 'core/objectives.json',
+        'invoices': {
+            path: 'finances/invoices.csv',
+            description: 'Financial invoices data in CSV format containing invoice details'
+        },
+        'team' : {
+            path: 'core/team.json',
+            description: 'Team members and roles'
+        },
+        'projects': {
+            path: 'core/projects.json',
+            description: 'Project management data'
+        },
+        'leads': {
+            path: 'clients/leads.csv',
+            description: 'Sales leads information tracking potential clients and opportunities'
+        },
+        'offers': {
+            path: 'clients/offers.json',
+            description: 'Client offers and proposals including price and service details'
+        },
+        'clients': {
+            path: 'clients/clients.csv',
+            description: 'Client database containing contact information'
+        },
+        'templates': {
+            path: 'templates/templates.json',
+            description: 'Document templates for various business processes and communications'
+        },
+        'objectives': {
+            path: 'core/objectives.json',
+            description: 'Business objectives'
+        },
         // Script oracles   
-        "curs": "core/scripts/cursvalutar.oracle",
+        "curs": {
+            path: "core/scripts/cursvalutar.oracle",
+            description: 'Currency exchange rate script for financial calculations'
+        }
     }
 };

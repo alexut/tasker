@@ -1,0 +1,341 @@
+openapi: 3.1.0
+info:
+  title: Tasker API
+  description: Provides task and project management functionalities, including file and task management, oracle data
+    retrieval, and executing actions such as system commands, browser control, and Photoshop tasks.
+  version: v1.0.0
+servers:
+  - url: https://mediabit.go.ro
+paths:
+  /tasker/api/todos:
+    get:
+      summary: List Todo Files
+      description: Retrieves all `.todo` files from the base directory and its subdirectories.
+      operationId: listTodoFiles
+      responses:
+        "200":
+          description: A list of `.todo` files.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: string
+                      description: Path to the `.todo` file.
+  /tasker/api/todos/{filePath}:
+    get:
+      summary: Load Todo File
+      description: Loads and parses a specific todo file by its file path.
+      operationId: loadTodoFile
+      parameters:
+        - name: filePath
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Relative path to the todo file (e.g. 'tasks.todo', 'personal/calendar.todo').
+      responses:
+        "200":
+          description: The parsed content of the todo file.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filename:
+                    type: string
+                  content:
+                    type: object
+                    properties:
+                      projects:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            tasks:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  text:
+                                    type: string
+                                  done:
+                                    type: boolean
+                                  tags:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                        value:
+                                          type: string
+        "404":
+          description: File not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /tasker/api/todos/{filePath}/tasks/{taskId}:
+    patch:
+      summary: Update Task
+      description: Updates a specific task in a todo file.
+      operationId: updateTask
+      parameters:
+        - name: filePath
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Relative path to the todo file (e.g. 'tasks.todo', 'personal/calendar.todo').
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Identifier of the task.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Updated text for the task.
+                done:
+                  type: boolean
+                  description: Mark the task as done or not done.
+                addTag:
+                  type: object
+                  description: Tag to add to the task.
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                removeTag:
+                  type: string
+                  description: Tag name to remove from the task.
+      responses:
+        "200":
+          description: Task updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  task:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      text:
+                        type: string
+                      done:
+                        type: boolean
+                      tags:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+        "400":
+          description: Invalid request data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Task or file not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /tasker/api/actions:
+    get:
+      summary: List Actions
+      description: Retrieves the list of available actions supported by the Tasker API.
+      operationId: listActions
+      responses:
+        "200":
+          description: List of actions available for execution.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  actions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the action.
+                        description:
+                          type: string
+                          description: Description of what the action does.
+        "404":
+          description: No actions found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /tasker/api/action/execute:
+    post:
+      summary: Execute Action
+      description: Executes a specified action such as controlling a browser, running system commands, managing files, or
+        performing Photoshop operations.
+      operationId: executeAction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: The action to execute (e.g., browser, cmd, send_email, photoshop, filesystem).
+                  enum:
+                    - browser
+                    - cmd
+                    - send_email
+                    - get_email
+                    - trash_email
+                    - photoshop
+                    - filesystem
+                parameters:
+                  type: string
+                  description: A JSON-encoded string of parameters for the action.
+      responses:
+        "200":
+          description: Action executed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: Action type.
+                  success:
+                    type: boolean
+                    description: Whether the action succeeded.
+                  result:
+                    type: object
+                    description: The result of the action.
+                  error:
+                    type: string
+                    description: Error message if the action failed.
+        "400":
+          description: Invalid action or parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /tasker/api/oracles:
+    get:
+      summary: List Oracles
+      description: Retrieves a list of available oracles with descriptions.
+      operationId: listOracles
+      responses:
+        "200":
+          description: List of oracles.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  oracles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        path:
+                          type: string
+                        description:
+                          type: string
+        "404":
+          description: No oracles found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /tasker/api/oracles/{name}:
+    get:
+      summary: Get Oracle Data
+      description: Retrieves data from a specific oracle by its name.
+      operationId: getOracleData
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Name of the oracle.
+      responses:
+        "200":
+          description: Oracle data retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  type:
+                    type: string
+                  path:
+                    type: string
+                  description:
+                    type: string
+                  data:
+                    type: object
+        "404":
+          description: Oracle not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

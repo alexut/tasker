@@ -2,7 +2,8 @@ const fs = require('fs').promises;
 const path = require('path');
 const TodoFileParser = require('../parser/TodoFileParser');
 const config = require('../../config');
-const debug = require('debug')('todo:repository'); // Optional: Add debugging
+const todoConfig = require('../../config/todo.config');
+const debug = require('debug')('todo:repository');
 
 class TodoFileRepository {
     constructor() {
@@ -11,8 +12,30 @@ class TodoFileRepository {
     }
     
     async listTodoFiles() {
-        const files = await this.scanDirectory(this.basePath);
-        return files.map(file => path.relative(this.basePath, file));
+        const allFiles = new Set();
+        
+        // Add predefined paths
+        for (const predefinedPath of todoConfig.predefinedPaths) {
+            allFiles.add(predefinedPath);
+        }
+        
+        // Scan projects directory for todo files
+        const projectsPath = path.join(this.basePath, 'projects');
+        try {
+            const projectFiles = await this.scanDirectory(projectsPath);
+            for (const file of projectFiles) {
+                // Normalize path separators to forward slashes
+                const relativePath = path.relative(this.basePath, file).replace(/\\/g, '/');
+                allFiles.add(relativePath);
+            } 
+        } catch (error) {
+            debug('Error scanning projects directory:', error);
+            // Continue even if projects directory doesn't exist
+        }
+        
+        // Convert to array and sort
+        const sortedFiles = Array.from(allFiles).sort();
+        return sortedFiles;
     }
 
     async scanDirectory(dir) {
@@ -50,33 +73,21 @@ class TodoFileRepository {
     async load(filePath) {
         try {
             const fullPath = this.getFullPath(filePath);
-            debug('Loading from:', fullPath);
-            
-            const content = await fs.readFile(fullPath, 'utf-8');
-            debug('File content:', content);
-            
-            const projects = this.parser.parse(content);
-            debug('Parsed projects:', projects);
-            
-            return projects;
+            const content = await fs.readFile(fullPath, 'utf8');
+            return this.parser.parse(content);
         } catch (error) {
-            debug('Error loading file:', error);
+            debug('Error loading todo file:', error);
             throw new Error(`Failed to load todo file: ${error.message}`);
         }
     }
 
-    async save(filePath, projects) {
+    async save(filePath, tasks) {
         try {
             const fullPath = this.getFullPath(filePath);
-            debug('Saving to:', fullPath);
-            
-            const content = this.parser.serialize(projects);
-            debug('Serialized content:', content);
-            
-            await fs.writeFile(fullPath, content, 'utf-8');
-            debug('File saved successfully');
+            const content = this.parser.serialize(tasks);
+            await fs.writeFile(fullPath, content);
         } catch (error) {
-            debug('Error saving file:', error);
+            debug('Error saving todo file:', error);
             throw new Error(`Failed to save todo file: ${error.message}`);
         }
     }

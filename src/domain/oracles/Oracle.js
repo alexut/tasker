@@ -9,15 +9,14 @@ const oracleConfig = require('../../config/oracles.config');
 class Oracle {
     constructor() {
         this.config = config;
-        this.basePath = this.config.settings.basePath;
-        console.log('Oracle basePath:', this.basePath);
+        this.basePath = config.settings.basePath;
     }
 
     async listOracles() {
         const oracles = [];
 
-        for (const [name, relativePath] of Object.entries(oracleConfig.oracles)) {
-            const fullPath = path.join(this.basePath, relativePath);
+        for (const [name, oracle] of Object.entries(oracleConfig.oracles)) {
+            const fullPath = path.join(this.basePath, oracle.path);
             console.log('Checking oracle:', name, 'at path:', fullPath);
             
             if (!fs.existsSync(fullPath)) {
@@ -25,49 +24,35 @@ class Oracle {
                 continue;
             }
 
-            const content = fs.readFileSync(fullPath, 'utf8');
-            const lines = content.split('\n');
-
-            // Get oracle metadata
-            const params = lines.find(line => 
-                line.trim().startsWith(`${this.config.symbols.oracles} Parameters:`)
-            )?.trim().substring(this.config.symbols.oracles.length + 12).trim();
-
-            const returns = lines.find(line => 
-                line.trim().startsWith(`${this.config.symbols.oracles} Returns:`)
-            )?.trim().substring(this.config.symbols.oracles.length + 9).trim();
-
-            // Determine oracle type
+            // Determine oracle type from file extension
             let type;
-            if (relativePath.endsWith('.oracle')) {
+            if (oracle.path.endsWith('.oracle')) {
                 type = 'script';
-            } else if (relativePath.endsWith('.csv')) {
+            } else if (oracle.path.endsWith('.csv')) {
                 type = 'csv';
-            } else if (relativePath.endsWith('.json')) {
+            } else if (oracle.path.endsWith('.json')) {
                 type = 'json';
             }
 
             oracles.push({
                 name,
                 type,
-                file: fullPath,
-                parameters: params,
-                returns
+                path: oracle.path,
+                description: oracle.description
             });
         }
 
-        console.log('Found oracles:', oracles);
         return oracles;
     }
 
     async queryOracle(name, queryPath = '', parameters = {}) {
-        const relativePath = oracleConfig.oracles[name];
+        const oracle = oracleConfig.oracles[name];
         
-        if (!relativePath) {
+        if (!oracle) {
             throw new Error(`Oracle '${name}' not found`);
         }
 
-        const fullPath = path.join(this.basePath, relativePath);
+        const fullPath = path.join(this.basePath, oracle.path);
         console.log('Querying oracle:', name, 'at path:', fullPath);
         
         if (!fs.existsSync(fullPath)) {
@@ -75,15 +60,15 @@ class Oracle {
         }
 
         // Determine oracle type from file extension
-        if (relativePath.endsWith('.oracle')) {
+        if (oracle.path.endsWith('.oracle')) {
             return this.executeScript(fullPath, queryPath, parameters);
-        } else if (relativePath.endsWith('.csv')) {
+        } else if (oracle.path.endsWith('.csv')) {
             return this.queryCsv(fullPath, queryPath, parameters);
-        } else if (relativePath.endsWith('.json')) {
+        } else if (oracle.path.endsWith('.json')) {
             return this.queryJson(fullPath, queryPath, parameters);
         }
 
-        throw new Error(`Unknown oracle type for file: ${relativePath}`);
+        throw new Error(`Unknown oracle type for file: ${oracle.path}`);
     }
 
     async executeScript(filePath, queryPath, parameters) {
@@ -146,52 +131,6 @@ class Oracle {
             // Clean up temp file
             fs.unlinkSync(tempFile);
         }
-    }
-
-    async queryJson(filePath, queryPath, parameters) {
-        // path format: propriety-name(value).propriety-name(value).(parameters-answer)
-        const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        let data = content;
-
-        if (!queryPath) {
-            return data;
-        }
-
-        // Parse path segments
-        const segments = queryPath.split('.');
-        for (const segment of segments) {
-            const match = segment.match(/(\w+)\(([^)]+)\)/);
-            if (!match) {
-                throw new Error(`Invalid path segment: ${segment}`);
-            }
-
-            const [_, prop, value] = match;
-            console.log('JSON path segment:', { prop, value, currentData: data });
-            
-            if (!data[prop]) {
-                throw new Error(`Path not found: ${segment}`);
-            }
-
-            if (Array.isArray(data[prop])) {
-                if (value === 'last') {
-                    data = data[prop][data[prop].length - 1];
-                } else if (!isNaN(value)) {
-                    data = data[prop][parseInt(value)];
-                } else {
-                    // Remove quotes from value
-                    const searchValue = value.replace(/^"(.*)"$/, '$1');
-                    data = data[prop].find(item => item.type === searchValue);
-                }
-            } else {
-                data = data[prop];
-            }
-
-            if (!data) {
-                throw new Error(`Path not found: ${segment}`);
-            }
-        }
-
-        return data;
     }
 
     async queryCsv(filePath, queryPath, parameters) {
@@ -260,6 +199,53 @@ class Oracle {
             }
             return true;
         });
+    }
+
+    async queryJson(filePath, queryPath, parameters) {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const data = JSON.parse(content);
+
+        if (!queryPath) {
+            return data;
+        }
+
+        // Parse path segments
+        const segments = queryPath.split('.');
+        let result = data;
+
+        for (const segment of segments) {
+            const match = segment.match(/(\w+)\(([^)]+)\)/);
+            if (!match) {
+                throw new Error(`Invalid path segment: ${segment}`);
+            }
+
+            const [_, prop, value] = match;
+            console.log('JSON path segment:', { prop, value, currentData: result });
+            
+            if (!result[prop]) {
+                throw new Error(`Path not found: ${segment}`);
+            }
+
+            if (Array.isArray(result[prop])) {
+                if (value === 'last') {
+                    result = result[prop][result[prop].length - 1];
+                } else if (!isNaN(value)) {
+                    result = result[prop][parseInt(value)];
+                } else {
+                    // Remove quotes from value
+                    const searchValue = value.replace(/^"(.*)"$/, '$1');
+                    result = result[prop].find(item => item.type === searchValue);
+                }
+            } else {
+                result = result[prop];
+            }
+
+            if (!result) {
+                throw new Error(`Path not found: ${segment}`);
+            }
+        }
+
+        return result;
     }
 }
 

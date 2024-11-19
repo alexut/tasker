@@ -18,6 +18,46 @@ Lists all `.todo` files in the configured base directory and its subdirectories.
 }
 ```
 
+### Health Check
+Checks the health status of the API server.
+
+**Endpoint**: `GET /api/todos/health`
+
+**Response**:
+```json
+{
+    "status": "ok",
+    "server": "api"
+}
+```
+
+### List Available Actions
+Lists all available actions for todos.
+TODO: Thionk if this is needed, used, The frontend handles actions through:
+
+Task status updates via the PATCH endpoint
+Timer functionality for task tracking
+Task filtering and organization
+Since the /api/todos/actions endpoint isn't currently used in the frontend, but it's properly implemented in the backend, we could potentially use it to:
+
+Show available actions when editing a task
+Add action suggestions when creating new tasks
+Display action capabilities in the task viewer UI
+
+**Endpoint**: `GET /api/todos/actions`
+
+**Response**:
+```json
+{
+    "actions": [
+        {
+            "name": "string",
+            "description": "string"
+        }
+    ]
+}
+```
+
 ### Load Todo File
 Loads and parses a specific todo file.
 
@@ -96,6 +136,113 @@ Updates a specific task in a todo file.
 
 ---
 
+## Actions API
+
+### List Available Actions
+Lists all available actions in the system.
+
+**Endpoint**: `GET /api/actions`
+
+**Response**:
+```json
+{
+    "actions": [
+        {
+            "name": "string",
+            "description": "string"
+        }
+    ]
+}
+```
+
+### Execute Action
+**Endpoint**: `POST /api/actions/execute`
+**Method**: `POST`
+
+**Request Body**:
+```json
+{
+    "action": "string",
+    "parameters": "string"  // JSON string of parameters
+}
+```
+
+### Available Actions
+
+#### Browser Action
+Control browser windows
+```json
+{
+    "action": "browser",
+    "parameters": "{
+        \"url\": \"https://example.com\",
+        \"width\": 1920,
+        \"height\": 1080,
+        \"x\": 0,
+        \"y\": 0
+    }"
+}
+```
+
+#### Command Action
+Execute system commands
+```json
+{
+    "action": "cmd",
+    "parameters": "{
+        \"command\": \"echo 'Hello World'\"
+    }"
+}
+```
+
+#### Email Actions
+Handle email operations
+```json
+{
+    "action": "get_email",  // or "send_email", "trash_email"
+    "parameters": "{
+        \"account\": \"work\",
+        \"query\": \"subject:important\"
+    }"
+}
+```
+
+#### Photoshop Action
+Control Photoshop operations
+```json
+{
+    "action": "photoshop",
+    "parameters": "{
+        \"script\": \"app.activeDocument.save()\"
+    }"
+}
+```
+
+#### File System Action
+Perform file system operations
+```json
+{
+    "action": "filesystem",
+    "parameters": "{
+        \"operation\": \"copy\",
+        \"source\": \"path/to/source\",
+        \"destination\": \"path/to/dest\"
+    }"
+}
+```
+
+### Response Format
+```json
+{
+    "type": "string",     // Action type
+    "success": boolean,   // Success status
+    "result": object,     // Action-specific result
+    "error": "string"     // Error message if failed
+}
+```
+
+---
+
 ## Oracle API
 
 ### List Oracles
@@ -160,153 +307,3 @@ Updates a specific task in a todo file.
     "error": "string"
 }
 ```
-
----
-
-## Action API
-
-### Execute Action
-**URL**: `/api/action/execute`
-**Method**: `POST`
-
-#### Request Body
-```json
-{
-    "action": "string",
-    "parameters": "string"  // JSON string of parameters
-}
-```
-
-### Available Actions
-
-#### Browser Action
-Control browser windows
-```json
-{
-    "action": "browser",
-    "parameters": "{
-        \"url\": \"https://example.com\",
-        \"width\": 1920,
-        \"height\": 1080,
-        \"x\": 0,
-        \"y\": 0
-    }"
-}
-```
-
-#### Command Action
-Execute system commands
-```json
-{
-    "action": "cmd",
-    "parameters": "{
-        \"command\": \"echo\",
-        \"args\": [\"Hello World\"]
-    }"
-}
-```
-
-#### Email Actions
-
-##### Send Email
-```json
-{
-    "action": "send_email",
-    "parameters": "{
-        \"to\": \"recipient@example.com\",
-        \"subject\": \"Test Email\",
-        \"body\": \"Hello World\",
-        \"attachments\": [\"path/to/file.txt\"]
-    }"
-}
-```
-
-##### Get Email
-```json
-{
-    "action": "get_email",
-    "parameters": "{
-        \"account\": \"myaccount\",
-        \"folder\": \"INBOX\",
-        \"limit\": 10
-    }"
-}
-```
-
-##### Trash Email
-```json
-{
-    "action": "trash_email",
-    "parameters": "{
-        \"account\": \"myaccount\",
-        \"messageId\": \"12345\"
-    }"
-}
-```
-
-#### Photoshop Actions
-
-##### Create Document
-```json
-{
-    "action": "photoshop",
-    "parameters": "{
-        \"command\": \"create\",
-        \"width\": 800,
-        \"height\": 600,
-        \"name\": \"test\"
-    }"
-}
-```
-
-##### Add Text
-```json
-{
-    "action": "photoshop",
-    "parameters": "{
-        \"command\": \"addText\",
-        \"text\": \"Hello World\",
-        \"x\": 400,
-        \"y\": 300,
-        \"size\": 48,
-        \"color\": [0, 0, 0]
-    }"
-}
-```
-
-##### Add Image
-```json
-{
-    "action": "photoshop",
-    "parameters": "{
-        \"command\": \"addImage\",
-        \"path\": \"path/to/image.jpg\",
-        \"width\": 500,
-        \"height\": 300
-    }"
-}
-```
-
-##### Save Document
-```json
-{
-    "action": "photoshop",
-    "parameters": "{
-        \"command\": \"save\",
-        \"format\": \"psd\",
-        \"path\": \"path/to/save.psd\"
-    }"
-}
-```
-
-### Response Format
-```json
-{
-    "type": "string",     // Action type
-    "success": boolean,   // Success status
-    "result": object,     // Action result (if successful)
-    "error": "string"     // Error message (if failed)
-}
-```
-
----
