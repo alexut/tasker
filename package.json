@@ -10,6 +10,7 @@
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.1",
     "imap": "^0.8.19",
     "mailparser": "^3.7.1",

@@ -24,7 +24,7 @@
         <div>Status: <span id="status">Connecting...</span></div>
         <div>Last Command: <pre id="lastCommand"></pre></div>
     </div>
-    <iframe id="photopea" src="https://www.photopea.com" frameborder="0"></iframe>
+    <iframe id="photopea" src="https://www.photopea.com/#" frameborder="0"></iframe>
     <script>
         const frame = document.getElementById('photopea');
         const status = document.getElementById('status');
@@ -44,7 +44,7 @@
                 ws.close();
             }
 
-            ws = new WebSocket('ws://localhost:3000/photopea');
+            ws = new WebSocket('wss://mediabit.go.ro/photopea');
             
             ws.onopen = () => {
                 console.log('WebSocket connected');
@@ -130,6 +130,8 @@
                     }
                     
                     // Send save data to server
+
+                    // TODO: Change save so that is relative to basePath
                     const saveMessage = {
                         type: 'save',
                         format: format,

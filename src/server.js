@@ -1,14 +1,31 @@
 const express = require('express');
 const path = require('path');
-const http = require('http');
+const https = require('https');
 const WebSocket = require('ws');
 const fs = require('fs');
+const cors = require('cors');
 const todoRoutes = require('./api/routes/todo.routes');
+const tasksRoutes = require('./api/routes/tasks.routes');
 const actionRoutes = require('./api/routes/action.routes');
 const oracleRoutes = require('./api/routes/oracle.routes');
+const config = require('./config');
 
 const app = express();
-const server = http.createServer(app);
+
+// CORS configuration
+app.use(cors({
+    origin: ['https://mediabit.go.ro', 'https://www.photopea.com'],
+    methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'DELETE', 'PUT'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// HTTPS configuration
+const options = {
+    key: fs.readFileSync(path.resolve(__dirname, '../../privkey.pem')),
+    cert: fs.readFileSync(path.resolve(__dirname, '../../fullchain.pem'))
+};
+
+const server = https.createServer(options, app);
 
 // Create WebSocket server attached to /photopea endpoint
 const wss = new WebSocket.Server({ 
@@ -121,8 +138,63 @@ function sendToPhotopea(connectionId, script, params) {
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve files from hub path with restrictions
+app.use('/hub', (req, res, next) => {
+    const requestPath = req.path;
+    const hubPath = config.settings.basePath;
+    const fullPath = path.join(hubPath, requestPath);
+    
+    // Normalize paths for comparison (handle Windows backslashes)
+    const normalizedFullPath = path.normalize(fullPath).toLowerCase();
+    const normalizedHubPath = path.normalize(hubPath).toLowerCase();
+    
+    console.log('Request details:', {
+        requestPath,
+        hubPath,
+        fullPath,
+        normalizedFullPath,
+        normalizedHubPath
+    });
+    
+    // Prevent directory traversal
+    if (!normalizedFullPath.startsWith(normalizedHubPath)) {
+        console.log('Access denied: Path traversal detected');
+        return res.status(403).send('Access denied: Path traversal');
+    }
+    
+    // Check if path exists and is not a directory
+    try {
+        const stats = fs.statSync(fullPath);
+        if (stats.isDirectory()) {
+            console.log('Access denied: Directory access attempt');
+            return res.status(403).send('Directory access not allowed');
+        }
+    } catch (err) {
+        console.log('File not found:', fullPath);
+        return res.status(404).send('File not found');
+    }
+    
+    // Check file extension
+    const ext = path.extname(fullPath).toLowerCase();
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.html', '.htm'];
+    
+    if (!allowedExts.includes(ext)) {
+        console.log('Access denied: Invalid file type', ext);
+        return res.status(403).send('File type not allowed');
+    }
+
+    // Set CORS headers for image files
+    res.set('Access-Control-Allow-Origin', 'https://www.photopea.com');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    
+    console.log('Serving file:', fullPath);
+    res.sendFile(fullPath);
+});
+
 // Routes
 app.use('/api/todos', todoRoutes);
+app.use('/api/tasks', tasksRoutes);
 app.use('/api/actions', actionRoutes);
 app.use('/api/oracles', oracleRoutes);
 
@@ -134,10 +206,10 @@ app.use((err, req, res, next) => {
 
 // Only start the server if not in test environment
 if (process.env.NODE_ENV !== 'test') {
-    const PORT = process.env.PORT || 3000;
+    const PORT = process.env.PORT || 3001;
     server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-        console.log(`WebSocket server running at ws://localhost:${PORT}/photopea`);
+        console.log(`Secure server running at https://localhost:${PORT}`);
+        console.log(`WebSocket server running at wss://localhost:${PORT}/photopea`);
     });
 }
 

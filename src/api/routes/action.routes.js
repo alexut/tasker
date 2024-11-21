@@ -33,41 +33,54 @@ router.get('/', (req, res) => {
 
 // Execute an action
 router.post('/execute', async (req, res) => {
-    const { action: actionType, parameters } = req.body;
-    console.log('Action request received:', {
-        actionType,
-        parameters: JSON.stringify(parameters)
-    });
-
-    if (!actionType || !actions[actionType]) {
-        return res.status(400).json({ error: `Unknown action type: ${actionType}` });
+    console.log('Received request body:', JSON.stringify(req.body, null, 2));
+    
+    const { action, parameters } = req.body;
+    
+    if (!action || !actions[action]) {
+        console.error('Invalid action:', { action, body: req.body });
+        return res.status(400).json({ 
+            error: `Invalid action. Action must be one of: ${Object.keys(actions).join(', ')}`,
+            receivedAction: action
+        });
     }
 
     try {
-        if (actionType === 'photoshop') {
-            const params = JSON.parse(parameters);
-            console.log('Parsed photoshop parameters:', params);
-            const result = await photoshopAction.execute(null, parameters);
+        console.log(`Executing ${action} with parameters:`, parameters);
+        const result = await actions[action].execute(null, parameters);
+        
+        // Special handling for cmd action which returns stdout/stderr
+        if (action === 'cmd') {
             res.json({
-                type: actionType,
                 success: true,
-                result
+                stdout: result.stdout,
+                stderr: result.stderr
             });
         } else {
-            const action = actions[actionType];
-            const result = await action.execute(null, parameters);
             res.json({
-                type: actionType,
+                type: action,
                 success: true,
                 result
             });
         }
     } catch (error) {
-        res.status(400).json({
-            type: actionType,
-            success: false,
-            error: error.message
-        });
+        console.error(`[${action}Action] Error:`, error);
+        
+        // Handle cmd action errors which include more details
+        if (action === 'cmd' && error.code !== undefined) {
+            res.status(400).json({
+                success: false,
+                error: error.message,
+                stderr: error.stderr,
+                code: error.code
+            });
+        } else {
+            res.status(400).json({
+                type: action,
+                success: false,
+                error: error.message || 'Unknown error occurred'
+            });
+        }
     }
 });
 

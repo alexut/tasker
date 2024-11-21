@@ -12,7 +12,13 @@ class CmdAction extends Action {
         if (!parameters || typeof parameters !== 'string' || parameters.trim().length === 0) {
             throw new Error('Command parameters must be a non-empty string');
         }
-        return true;
+        // Remove any surrounding quotes if present
+        parameters = parameters.trim();
+        if ((parameters.startsWith('"') && parameters.endsWith('"')) || 
+            (parameters.startsWith("'") && parameters.endsWith("'"))) {
+            parameters = parameters.slice(1, -1);
+        }
+        return parameters;
     }
 
     cleanOutput(output) {
@@ -26,10 +32,10 @@ class CmdAction extends Action {
     }
 
     async execute(task, parameters) {
-        this.validateParameters(parameters);
+        parameters = this.validateParameters(parameters);
         
         return new Promise((resolve, reject) => {
-            console.log(`[CmdAction] Executing: ${parameters}`);
+            console.log(`[CmdAction] Executing command: ${parameters}`);
             
             exec(parameters, (error, stdout, stderr) => {
                 if (error) {
@@ -43,10 +49,12 @@ class CmdAction extends Action {
                     });
                 } else {
                     const cleanStdout = this.cleanOutput(stdout);
+                    const cleanStderr = this.cleanOutput(stderr);
                     if (cleanStdout) console.log(`[CmdAction] Output: ${cleanStdout}`);
+                    if (cleanStderr) console.log(`[CmdAction] Stderr: ${cleanStderr}`);
                     resolve({
                         stdout: cleanStdout,
-                        stderr: this.cleanOutput(stderr)
+                        stderr: cleanStderr
                     });
                 }
             });

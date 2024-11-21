@@ -2,6 +2,7 @@ const { exec } = require('child_process');
 const Action = require('./Action');
 const path = require('path');
 const fs = require('fs');
+const config = require('../../config');
 
 class PhotoshopAction extends Action {
     constructor() {
@@ -39,15 +40,24 @@ class PhotoshopAction extends Action {
                     layer.textItem.color = ${JSON.stringify(color || [0, 0, 0])};
                 `;
             },
+            // TODO: addImage correctly see reference: https://www.photopea.com/api/live check demo 3, click button mutliple times
             addImage: ({ imagePath, x, y, width, height }) => {
+                // Validate image path
+                if (!imagePath) {
+                    throw new Error('Image path is required');
+                }
+
+                // Convert to served URL (imagePath is now relative to hub)
+                const relativePath = path.normalize(imagePath).replace(/\\/g, '/');
+                const imageUrl = `https://mediabit.go.ro/hub/${relativePath}`;
+
                 return `
-                    app.open("${imagePath}");
-                    var imageLayer = app.activeDocument.activeLayer.duplicate(app.documents[0]);
-                    app.activeDocument.close();
+                    // Load the image as a smart object
+                    app.load("${imageUrl}");
+                    var imageLayer = app.activeDocument.activeLayer;
                     imageLayer.translate(${x}, ${y});
-                    if (${width} && ${height}) {
-                        imageLayer.resize(${width}, ${height});
-                    }
+                    ${width && height ? `imageLayer.resize(${width}, ${height});` : ''}
+                    app.echoToOE("image_added");
                 `;
             },
             save: ({ format = "psd" }) => {
@@ -73,7 +83,7 @@ class PhotoshopAction extends Action {
 
             // If this is a create command or no active connection, start new browser
             if (params.command === 'create' || !this.activeConnection) {
-                const htmlPath = 'http://localhost:3000/photopea.html';
+                const htmlPath = 'https://mediabit.go.ro/photopea.html';
                 await this.browserAction.execute(task, `"${htmlPath}", 1920, 1080, 0, 0`);
                 
                 // Give time for WebSocket connection
@@ -85,6 +95,8 @@ class PhotoshopAction extends Action {
                 if (lastConnection) {
                     this.activeConnection = lastConnection;
                     console.log('Connected to Photopea instance:', this.activeConnection);
+                } else {
+                    throw new Error('Failed to establish WebSocket connection with Photopea');
                 }
             }
 

@@ -1,0 +1,772 @@
+{
+	"info": {
+		"_postman_id": "unique-id-here",
+		"name": "Tasker Actions",
+		"description": "Tasker API Collection including Actions and Photoshop commands",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Actions",
+			"item": [
+				{
+					"name": "Execute Action",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"width\\\": 800, \\\"height\\\": 600, \\\"name\\\": \\\"test\\\"}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/actions/execute",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"actions",
+								"execute"
+							]
+						},
+						"description": "Execute various actions including Photoshop commands"
+					},
+					"response": [
+						{
+							"name": "Create Photoshop Document",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"width\\\": 800, \\\"height\\\": 600, \\\"name\\\": \\\"test\\\"}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Add Text to Document",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"addText\\\", \\\"text\\\": \\\"Hello World\\\", \\\"x\\\": 400, \\\"y\\\": 300, \\\"size\\\": 48, \\\"color\\\": [0,0,0]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Add Image (Natural Size)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"addImage\\\", \\\"imagePath\\\": \\\"test/custom-image.jpg\\\", \\\"x\\\": 0, \\\"y\\\": 0}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Add Image (Resized)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"addImage\\\", \\\"imagePath\\\": \\\"test/custom-image.jpg\\\", \\\"x\\\": 0, \\\"y\\\": 0, \\\"width\\\": 400, \\\"height\\\": 300}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Save Document",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"photoshop\",\n    \"parameters\": \"{\\\"command\\\": \\\"save\\\", \\\"path\\\": \\\"c:/hub/core/tasker/output/test.psd\\\", \\\"format\\\": \\\"psd\\\"}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Create Directory",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"mkdir\\\", \\\"path\\\": \\\"test/newdir\\\"}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Copy File",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"copy\\\", \\\"source\\\": \\\"test/image.jpg\\\", \\\"destination\\\": \\\"test/backup/image.jpg\\\"}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Move File",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"move\\\", \\\"source\\\": \\\"test/image.jpg\\\", \\\"destination\\\": \\\"archive/image.jpg\\\"}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "Delete File",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"delete\\\", \\\"path\\\": \\\"test/unwanted.txt\\\"}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						},
+						{
+							"name": "List Directory",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"list\\\", \\\"path\\\": \\\"test\\\"}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"files\": [\n        {\n            \"name\": \"image.jpg\",\n            \"type\": \"file\",\n            \"size\": 12345\n        },\n        {\n            \"name\": \"backup\",\n            \"type\": \"directory\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Scan Directory (Basic)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"scan\\\", \\\"path\\\": \\\"test\\\", \\\"options\\\": {\\\"recursive\\\": false}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"path\": \"test\",\n    \"files\": [\n        {\n            \"name\": \"test1.txt\",\n            \"path\": \"test/test1.txt\"\n        }\n    ],\n    \"folders\": [\n        {\n            \"name\": \"subfolder\",\n            \"path\": \"test/subfolder\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Scan Directory (Recursive with Content)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"scan\\\", \\\"path\\\": \\\"test\\\", \\\"options\\\": {\\\"recursive\\\": true, \\\"includeContent\\\": true, \\\"maxSize\\\": 51200}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"path\": \"test\",\n    \"files\": [\n        {\n            \"name\": \"test1.txt\",\n            \"path\": \"test/test1.txt\"\n        },\n        {\n            \"name\": \"test2.txt\",\n            \"path\": \"test/subfolder/test2.txt\"\n        }\n    ],\n    \"folders\": [\n        {\n            \"name\": \"subfolder\",\n            \"path\": \"test/subfolder\"\n        }\n    ],\n    \"contents\": {\n        \"test1.txt\": {\n            \"content\": \"Test content 1\",\n            \"size\": 13\n        },\n        \"test2.txt\": {\n            \"content\": \"Test content 2\",\n            \"size\": 13\n        }\n    }\n}"
+						},
+						{
+							"name": "Scan Directory (With Offset)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"scan\\\", \\\"path\\\": \\\"test\\\", \\\"options\\\": {\\\"includeContent\\\": true, \\\"readOffset\\\": 5, \\\"maxSize\\\": 51200}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"path\": \"test\",\n    \"files\": [\n        {\n            \"name\": \"test1.txt\",\n            \"path\": \"test/test1.txt\"\n        }\n    ],\n    \"folders\": [],\n    \"contents\": {\n        \"test1.txt\": {\n            \"content\": \"content 1\",\n            \"size\": 13\n        }\n    }\n}"
+						},
+						{
+							"name": "Create File",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"structure\\\": [{\\\"type\\\": \\\"file\\\", \\\"path\\\": \\\"example.txt\\\", \\\"content\\\": \\\"Hello World\\\"}]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Structure created successfully\"\n}"
+						},
+						{
+							"name": "Create Single Folder",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"structure\\\": [{\\\"type\\\": \\\"folder\\\", \\\"path\\\": \\\"projects/new-project\\\"}]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Structure created successfully\"\n}"
+						},
+						{
+							"name": "Create Single File",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"structure\\\": [{\\\"type\\\": \\\"file\\\", \\\"path\\\": \\\"projects/readme.md\\\", \\\"content\\\": \\\"# Project Documentation\\nThis is a sample readme file.\\\"}]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Structure created successfully\"\n}"
+						},
+						{
+							"name": "Create Multiple Files and Folders",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"structure\\\": [\n        {\\\"type\\\": \\\"folder\\\", \\\"path\\\": \\\"projects/website\\\"},\n        {\\\"type\\\": \\\"folder\\\", \\\"path\\\": \\\"projects/website/src\\\"},\n        {\\\"type\\\": \\\"folder\\\", \\\"path\\\": \\\"projects/website/assets\\\"},\n        {\\\"type\\\": \\\"file\\\", \\\"path\\\": \\\"projects/website/index.html\\\", \\\"content\\\": \\\"<!DOCTYPE html>\\n<html>\\n<head>\\n    <title>My Website</title>\\n</head>\\n<body>\\n    <h1>Welcome</h1>\\n</body>\\n</html>\\\"},\n        {\\\"type\\\": \\\"file\\\", \\\"path\\\": \\\"projects/website/src/styles.css\\\", \\\"content\\\": \\\"body { margin: 0; padding: 20px; }\\\"}\n    ]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Structure created successfully\"\n}"
+						},
+						{
+							"name": "Filesystem - Create Single Folder",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"structure\\\": [{\\\"type\\\": \\\"folder\\\", \\\"path\\\": \\\"projects/new-project\\\"}]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Structure created successfully\"\n}"
+						},
+						{
+							"name": "Filesystem - Create Single File",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"create\\\", \\\"structure\\\": [{\\\"type\\\": \\\"file\\\", \\\"path\\\": \\\"projects/readme.md\\\", \\\"content\\\": \\\"# Project Documentation\\nThis is a sample readme file.\\\"}]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Structure created successfully\"\n}"
+						},
+						{
+							"name": "Filesystem - Create Multiple Files and Folders",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\":\\\"create\\\",\\\"structure\\\":[{\\\"type\\\":\\\"folder\\\",\\\"path\\\":\\\"projects/website\\\"},{\\\"type\\\":\\\"folder\\\",\\\"path\\\":\\\"projects/website/src\\\"},{\\\"type\\\":\\\"folder\\\",\\\"path\\\":\\\"projects/website/assets\\\"},{\\\"type\\\":\\\"file\\\",\\\"path\\\":\\\"projects/website/index.html\\\",\\\"content\\\":\\\"<!DOCTYPE html><html><head><title>My Website</title></head><body><h1>Welcome</h1></body></html>\\\"},{\\\"type\\\":\\\"file\\\",\\\"path\\\":\\\"projects/website/src/styles.css\\\",\\\"content\\\":\\\"body { margin: 0; padding: 20px; }\\\"}]}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Structure created successfully\"\n}"
+						},
+						{
+							"name": "Filesystem - Scan Directory (Basic)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"scan\\\", \\\"path\\\": \\\"projects\\\", \\\"options\\\": {\\\"recursive\\\": false}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"path\": \"projects\",\n    \"files\": [\n        {\n            \"name\": \"readme.md\",\n            \"path\": \"projects/readme.md\"\n        }\n    ],\n    \"folders\": [\n        {\n            \"name\": \"website\",\n            \"path\": \"projects/website\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Filesystem - Scan Directory (Recursive with Content)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"action\": \"filesystem\",\n    \"parameters\": \"{\\\"command\\\": \\\"scan\\\", \\\"path\\\": \\\"projects\\\", \\\"options\\\": {\\\"recursive\\\": true, \\\"includeContent\\\": true}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/actions/execute",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"actions",
+										"execute"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"path\": \"projects\",\n    \"files\": [\n        {\n            \"name\": \"readme.md\",\n            \"path\": \"projects/readme.md\"\n        },\n        {\n            \"name\": \"index.html\",\n            \"path\": \"projects/website/index.html\"\n        },\n        {\n            \"name\": \"styles.css\",\n            \"path\": \"projects/website/src/styles.css\"\n        }\n    ],\n    \"folders\": [\n        {\n            \"name\": \"website\",\n            \"path\": \"projects/website\"\n        },\n        {\n            \"name\": \"src\",\n            \"path\": \"projects/website/src\"\n        },\n        {\n            \"name\": \"assets\",\n            \"path\": \"projects/website/assets\"\n        }\n    ],\n    \"contents\": {\n        \"readme.md\": {\n            \"content\": \"# Project Documentation\\nThis is a sample readme file.\",\n            \"size\": 48\n        },\n        \"index.html\": {\n            \"content\": \"<!DOCTYPE html>\\n<html>\\n<head>\\n    <title>My Website</title>\\n</head>\\n<body>\\n    <h1>Welcome</h1>\\n</body>\\n</html>\",\n            \"size\": 115\n        },\n        \"styles.css\": {\n            \"content\": \"body { margin: 0; padding: 20px; }\",\n            \"size\": 35\n        }\n    }\n}"
+						}
+					]
+				}
+			],
+			"description": "Execute various actions including Photoshop commands"
+		}
+	]
+}

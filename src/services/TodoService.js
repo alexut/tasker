@@ -122,53 +122,125 @@ class TodoService {
         }
     }
 
-    async executeTaskActions(filePath, taskId) {
+    async createProject(filePath, projectName) {
         const projects = await this.loadFile(filePath);
-        const task = this.findTaskById(projects, taskId);
-        
-        if (!task) {
-            throw new Error(`Task not found: ${taskId}`);
-        }
-
-        const results = [];
-        for (const action of task.actions) {
-            try {
-                console.log(`[TodoService] Executing action: ${action.type}`);
-                const result = await this.actionRegistry.executeAction(action.type, task, action.params);
-                results.push({
-                    type: action.type,
-                    success: true,
-                    result
-                });
-            } catch (error) {
-                console.error(`[TodoService] Action ${action.type} failed:`, error);
-                results.push({
-                    type: action.type,
-                    success: false,
-                    error: {
-                        message: `Action execution failed: ${error.message}`,
-                        code: error.code || 1
-                    }
-                });
-            }
-        }
-
-        // Only mark as completed if all actions succeeded
-        const allSucceeded = results.every(r => r.success);
-        if (allSucceeded) {
-            task.status = 'completed';
-            await this.saveFile(filePath, projects);
-        }
-        
+        const newProject = {
+            name: projectName,
+            tasks: []
+        };
+        projects.push(newProject);
+        await this.saveFile(filePath, projects);
         return {
-            task,
-            actionResults: results,
-            allActionsSucceeded: allSucceeded
+            project: newProject,
+            projectId: projects.length.toString() // The new project's ID
         };
     }
+    
+    async createTasks(filePath, tasks) {
+        const projects = await this.loadFile(filePath);
+        const createdTasks = [];
+    
+        for (const taskData of tasks) {
+            const { projectId, parentTaskId, text } = taskData;
+            
+            // Parse project index from the first part of the ID (1-based)
+            const projectIndex = parseInt(projectId.split('.')[0]) - 1;
+            
+            if (projectIndex < 0 || projectIndex >= projects.length) {
+                throw new Error(`Invalid project index in ID: ${projectId}`);
+            }
+    
+            const newTask = {
+                text,
+                status: 'uncompleted',
+                tasks: [],
+                tags: {}
+            };
+    
+            if (parentTaskId) {
+                const parentTask = this.findTaskById(projects, parentTaskId);
+                if (!parentTask) {
+                    throw new Error(`Parent task not found: ${parentTaskId}`);
+                }
+                parentTask.tasks = parentTask.tasks || [];
+                parentTask.tasks.push(newTask);
+                // Calculate the new task's ID (parent.tasks.length)
+                const taskId = `${parentTaskId}.${parentTask.tasks.length}`;
+                createdTasks.push({ task: newTask, taskId });
+            } else {
+                const project = projects[projectIndex];
+                project.tasks = project.tasks || [];
+                project.tasks.push(newTask);
+                // Calculate the new task's ID (project.taskIndex)
+                const taskId = `${projectIndex + 1}.${project.tasks.length}`;
+                createdTasks.push({ task: newTask, taskId });
+            }
+        }
+    
+        await this.saveFile(filePath, projects);
+        return createdTasks;
+    }
 
-    async listAvailableActions() {
-        return this.actionRegistry.listActions();
+ 
+    async deleteItems(filePath, itemIds) {
+        const projects = await this.loadFile(filePath);
+        const deletedItems = [];
+    
+        for (const itemId of itemIds) {
+            const segments = itemId.split('.');
+            
+            // If only one segment, it's a project
+            if (segments.length === 1) {
+                const projectIndex = parseInt(segments[0]) - 1;
+                if (projectIndex >= 0 && projectIndex < projects.length) {
+                    const deletedProject = projects.splice(projectIndex, 1)[0];
+                    deletedItems.push({
+                        type: 'project',
+                        id: itemId,
+                        item: deletedProject
+                    });
+                }
+            } else {
+                // It's a task or subtask
+                const projectIndex = parseInt(segments[0]) - 1;
+                if (projectIndex >= 0 && projectIndex < projects.length) {
+                    const project = projects[projectIndex];
+                    
+                    // If two segments, it's a top-level task
+                    if (segments.length === 2) {
+                        const taskIndex = parseInt(segments[1]) - 1;
+                        if (taskIndex >= 0 && taskIndex < project.tasks.length) {
+                            const deletedTask = project.tasks.splice(taskIndex, 1)[0];
+                            deletedItems.push({
+                                type: 'task',
+                                id: itemId,
+                                item: deletedTask
+                            });
+                        }
+                    } else {
+                        // It's a subtask, find parent task first
+                        const parentTask = this.findTaskById(projects, segments.slice(0, -1).join('.'));
+                        if (parentTask && parentTask.tasks) {
+                            const subtaskIndex = parseInt(segments[segments.length - 1]) - 1;
+                            if (subtaskIndex >= 0 && subtaskIndex < parentTask.tasks.length) {
+                                const deletedSubtask = parentTask.tasks.splice(subtaskIndex, 1)[0];
+                                deletedItems.push({
+                                    type: 'subtask',
+                                    id: itemId,
+                                    item: deletedSubtask
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+        if (deletedItems.length > 0) {
+            await this.saveFile(filePath, projects);
+        }
+    
+        return deletedItems;
     }
 }
 
