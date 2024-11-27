@@ -1,0 +1,169 @@
+openapi: 3.0.0
+info:
+  title: Tasker API
+  description: API for managing tasks, projects, and subtasks
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+paths:
+  /tasks/load:
+    get:
+      summary: Load tasks from a file
+      parameters:
+        - name: filepath
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Path to the todo file
+      responses:
+        '200':
+          description: List of projects and tasks
+        '500':
+          description: Server error
+
+  /tasks/update:
+    patch:
+      summary: Update task text
+      parameters:
+        - name: filepath
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: taskId
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+      responses:
+        '200':
+          description: Updated task
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+
+  /tasks/project:
+    post:
+      summary: Create new project
+      parameters:
+        - name: filepath
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Created project
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+
+  /tasks/create:
+    post:
+      summary: Add new tasks and subtasks
+      parameters:
+        - name: filepath
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tasks:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      projectId:
+                        type: string
+                      parentTaskId:
+                        type: string
+                      text:
+                        type: string
+      responses:
+        '200':
+          description: Created tasks
+        '400':
+          description: Bad request
+        '500':
+          description: Server error
+
+  /tasks/delete:
+    post:
+      summary: Delete specified items (projects, tasks, or subtasks)
+      parameters:
+        - name: filepath
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: itemIds
+          in: query
+          required: false
+          schema:
+            oneOf:
+              - type: string
+                description: Comma-separated list of item IDs
+              - type: array
+                items:
+                  type: string
+                description: JSON array of item IDs
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of item IDs to delete
+      responses:
+        '200':
+          description: Deleted items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    item:
+                      type: object
+        '400':
+          description: Bad request
+        '500':
+          description: Server error

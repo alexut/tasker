@@ -1,7 +1,8 @@
 // src/services/TodoService.js
 const TodoFileRepository = require('../infrastructure/persistence/TodoFileRepository');
-const config = require('../config'); // Adjust the path as needed
+const config = require('../config');
 const ActionRegistry = require('../domain/actions/ActionRegistry');
+const Task = require('../domain/entities/Task'); // Fix the import path
 
 class TodoService {
     constructor() {
@@ -122,6 +123,11 @@ class TodoService {
         }
     }
 
+    findProjectByName(projects, name) {
+        const index = projects.findIndex(p => p.name === name);
+        return index !== -1 ? { project: projects[index], index } : null;
+    }
+
     async createProject(filePath, projectName) {
         const projects = await this.loadFile(filePath);
         const newProject = {
@@ -143,19 +149,28 @@ class TodoService {
         for (const taskData of tasks) {
             const { projectId, parentTaskId, text } = taskData;
             
-            // Parse project index from the first part of the ID (1-based)
-            const projectIndex = parseInt(projectId.split('.')[0]) - 1;
+            // Handle project identification by either numeric ID or name
+            let projectIndex;
+            if (/^\d+$/.test(projectId)) {
+                // Numeric ID (1-based)
+                projectIndex = parseInt(projectId) - 1;
+            } else {
+                // Project name
+                const projectInfo = this.findProjectByName(projects, projectId);
+                if (!projectInfo) {
+                    throw new Error(`Project not found: ${projectId}`);
+                }
+                projectIndex = projectInfo.index;
+            }
             
             if (projectIndex < 0 || projectIndex >= projects.length) {
-                throw new Error(`Invalid project index in ID: ${projectId}`);
+                throw new Error(`Invalid project index: ${projectIndex + 1}`);
             }
     
-            const newTask = {
-                text,
-                status: 'uncompleted',
-                tasks: [],
-                tags: {}
-            };
+            const newTask = new Task(text);
+            newTask.status = 'uncompleted';
+            newTask.tasks = [];
+            newTask.tags = [];
     
             if (parentTaskId) {
                 const parentTask = this.findTaskById(projects, parentTaskId);
@@ -185,8 +200,22 @@ class TodoService {
     async deleteItems(filePath, itemIds) {
         const projects = await this.loadFile(filePath);
         const deletedItems = [];
+        
+        // Sort itemIds in reverse order to handle index shifts
+        const sortedItemIds = [...itemIds].sort((a, b) => {
+            const aSegments = a.split('.').map(Number);
+            const bSegments = b.split('.').map(Number);
+            
+            // Compare each segment
+            for (let i = 0; i < Math.min(aSegments.length, bSegments.length); i++) {
+                if (aSegments[i] !== bSegments[i]) {
+                    return bSegments[i] - aSegments[i]; // Reverse order
+                }
+            }
+            return bSegments.length - aSegments.length; // Longer IDs (subtasks) come first
+        });
     
-        for (const itemId of itemIds) {
+        for (const itemId of sortedItemIds) {
             const segments = itemId.split('.');
             
             // If only one segment, it's a project
